@@ -21,10 +21,8 @@ static char *ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf);
 static char *ngx_set_user(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_set_env(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_set_priority(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
-static char *ngx_set_cpu_affinity(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
-static char *ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+static char *ngx_set_cpu_affinity(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+static char *ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_load_module(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 #if (NGX_HAVE_DLOPEN)
 static void ngx_unload_module(void *data);
@@ -192,6 +190,7 @@ static char        *ngx_signal;
 static char **ngx_os_environ;
 
 
+// ZHIWU: nginx_main
 int ngx_cdecl
 main(int argc, char *const *argv)
 {
@@ -236,16 +235,13 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-    /* STUB */
 #if (NGX_OPENSSL)
     ngx_ssl_init(log);
 #endif
 
     /*
-     * init_cycle->log is required for signal handlers and
-     * ngx_process_options()
+     * init_cycle->log is required for signal handlers and ngx_process_options()
      */
-
     ngx_memzero(&init_cycle, sizeof(ngx_cycle_t));
     init_cycle.log = log;
     ngx_cycle = &init_cycle;
@@ -270,7 +266,6 @@ main(int argc, char *const *argv)
     /*
      * ngx_crc32_table_init() requires ngx_cacheline_size set in ngx_os_init()
      */
-
     if (ngx_crc32_table_init() != NGX_OK) {
         return 1;
     }
@@ -278,7 +273,6 @@ main(int argc, char *const *argv)
     /*
      * ngx_slab_sizes_init() requires ngx_pagesize set in ngx_os_init()
      */
-
     ngx_slab_sizes_init();
 
     if (ngx_add_inherited_sockets(&init_cycle) != NGX_OK) {
@@ -292,17 +286,14 @@ main(int argc, char *const *argv)
     cycle = ngx_init_cycle(&init_cycle);
     if (cycle == NULL) {
         if (ngx_test_config) {
-            ngx_log_stderr(0, "configuration file %s test failed",
-                           init_cycle.conf_file.data);
+            ngx_log_stderr(0, "configuration file %s test failed", init_cycle.conf_file.data);
         }
-
         return 1;
     }
 
     if (ngx_test_config) {
         if (!ngx_quiet_mode) {
-            ngx_log_stderr(0, "configuration file %s test is successful",
-                           cycle->conf_file.data);
+            ngx_log_stderr(0, "configuration file %s test is successful", cycle->conf_file.data);
         }
 
         if (ngx_dump_config) {
@@ -311,12 +302,9 @@ main(int argc, char *const *argv)
             for (i = 0; i < cycle->config_dump.nelts; i++) {
 
                 ngx_write_stdout("# configuration file ");
-                (void) ngx_write_fd(ngx_stdout, cd[i].name.data,
-                                    cd[i].name.len);
+                (void) ngx_write_fd(ngx_stdout, cd[i].name.data, cd[i].name.len);
                 ngx_write_stdout(":" NGX_LINEFEED);
-
                 b = cd[i].buffer;
-
                 (void) ngx_write_fd(ngx_stdout, b->pos, b->last - b->pos);
                 ngx_write_stdout(NGX_LINEFEED);
             }
@@ -369,8 +357,7 @@ main(int argc, char *const *argv)
 
     if (log->file->fd != ngx_stderr) {
         if (ngx_close_file(log->file->fd) == NGX_FILE_ERROR) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          ngx_close_file_n " built-in log failed");
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_close_file_n " built-in log failed");
         }
     }
 

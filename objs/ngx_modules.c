@@ -61,13 +61,19 @@ ngx_module_t *ngx_modules[] = {
     &ngx_errlog_module,
     &ngx_conf_module,
     &ngx_regex_module,
+
+    // events
     &ngx_events_module,
     &ngx_event_core_module,
     &ngx_kqueue_module,
+
+    // http
     &ngx_http_module,
     &ngx_http_core_module,
     &ngx_http_log_module,
     &ngx_http_upstream_module,
+
+    // http_handler
     &ngx_http_static_module,
     &ngx_http_autoindex_module,
     &ngx_http_index_module,
@@ -95,6 +101,8 @@ ngx_module_t *ngx_modules[] = {
     &ngx_http_upstream_random_module,
     &ngx_http_upstream_keepalive_module,
     &ngx_http_upstream_zone_module,
+
+    // http_filter
     &ngx_http_write_filter_module,
     &ngx_http_header_filter_module,
     &ngx_http_chunked_filter_module,
