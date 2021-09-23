@@ -207,6 +207,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+    // ZHIWU: 解析命令行参数
     if (ngx_get_options(argc, argv) != NGX_OK) {
         return 1;
     }
@@ -221,15 +222,18 @@ main(int argc, char *const *argv)
 
     /* TODO */ ngx_max_sockets = -1;
 
+    // ZHIWU: 设置和更新时间戳
     ngx_time_init();
 
 #if (NGX_PCRE)
     ngx_regex_init();
 #endif
 
+    // ZHIWU: 当前进程和父进程
     ngx_pid = ngx_getpid();
     ngx_parent = ngx_getppid();
 
+    // ZHIWU: 初始化日志设置
     log = ngx_log_init(ngx_prefix, ngx_error_log);
     if (log == NULL) {
         return 1;
@@ -239,11 +243,10 @@ main(int argc, char *const *argv)
     ngx_ssl_init(log);
 #endif
 
-    /*
-     * init_cycle->log is required for signal handlers and ngx_process_options()
-     */
+    // init_cycle->log is required for signal handlers and ngx_process_options()
     ngx_memzero(&init_cycle, sizeof(ngx_cycle_t));
     init_cycle.log = log;
+    // ZHIWU: init_cycle 是一个临时变量，初始化之后将其指针赋值给全局变量
     ngx_cycle = &init_cycle;
 
     init_cycle.pool = ngx_create_pool(1024, log);
@@ -251,38 +254,41 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+    // ZHIWU: 写入命令行参数到ngx_cycle
     if (ngx_save_argv(&init_cycle, argc, argv) != NGX_OK) {
         return 1;
     }
 
+    // ZHIWU: 设置各种配置变量
     if (ngx_process_options(&init_cycle) != NGX_OK) {
         return 1;
     }
 
+    // ZHIWU: 初始化系统相关变量，如：内存页面大小ngx_pagesize、最大连接数ngx_max_sockets等
     if (ngx_os_init(log) != NGX_OK) {
         return 1;
     }
 
-    /*
-     * ngx_crc32_table_init() requires ngx_cacheline_size set in ngx_os_init()
-     */
+    // ZHIWU: 初始化CRC表，循环冗余校验表
+    // ngx_crc32_table_init() requires ngx_cacheline_size set in ngx_os_init()
     if (ngx_crc32_table_init() != NGX_OK) {
         return 1;
     }
 
-    /*
-     * ngx_slab_sizes_init() requires ngx_pagesize set in ngx_os_init()
-     */
+    // ngx_slab_sizes_init() requires ngx_pagesize set in ngx_os_init()
     ngx_slab_sizes_init();
 
+    // ZHIWU: 通过环境变量完成Socket的继承，将其保存在全局变量ngx_cycle的listening数组中
     if (ngx_add_inherited_sockets(&init_cycle) != NGX_OK) {
         return 1;
     }
 
+    // ZHIWU: 预初始化modules信息，module的信息是配置编译阶段通过auto/confgure命令生成，objs目录下
     if (ngx_preinit_modules() != NGX_OK) {
         return 1;
     }
 
+    // ZHIWU: 初始化ngx_cycle
     cycle = ngx_init_cycle(&init_cycle);
     if (cycle == NULL) {
         if (ngx_test_config) {
@@ -313,6 +319,7 @@ main(int argc, char *const *argv)
         return 0;
     }
 
+    // ZHIWU: signal 信号处理
     if (ngx_signal) {
         return ngx_signal_process(cycle, ngx_signal);
     }
@@ -347,10 +354,12 @@ main(int argc, char *const *argv)
 
 #endif
 
+    // ZHIWU: 设置pid文件
     if (ngx_create_pidfile(&ccf->pid, cycle->log) != NGX_OK) {
         return 1;
     }
 
+    // ZHIWU: 重定向异常
     if (ngx_log_redirect_stderr(cycle) != NGX_OK) {
         return 1;
     }
@@ -364,9 +373,10 @@ main(int argc, char *const *argv)
     ngx_use_stderr = 0;
 
     if (ngx_process == NGX_PROCESS_SINGLE) {
+        // ZHIWU: 单进程工作模式
         ngx_single_process_cycle(cycle);
-
     } else {
+        // ZHIWU: master-worker工作模式
         ngx_master_process_cycle(cycle);
     }
 
@@ -455,12 +465,9 @@ ngx_add_inherited_sockets(ngx_cycle_t *cycle)
         return NGX_OK;
     }
 
-    ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0,
-                  "using inherited sockets from \"%s\"", inherited);
+    ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "using inherited sockets from \"%s\"", inherited);
 
-    if (ngx_array_init(&cycle->listening, cycle->pool, 10,
-                       sizeof(ngx_listening_t))
-        != NGX_OK)
+    if (ngx_array_init(&cycle->listening, cycle->pool, 10, sizeof(ngx_listening_t)) != NGX_OK)
     {
         return NGX_ERROR;
     }
