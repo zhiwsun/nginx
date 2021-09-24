@@ -1,5 +1,8 @@
 # .gitignore
 
+## Git
+**/.gitmodules
+
 ## OS
 **/.DS_Store
 **/desktop.ini
