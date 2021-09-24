@@ -9,6 +9,8 @@ ALL_INCS = -I src/core \
 	-I src/event \
 	-I src/event/modules \
 	-I src/os/unix \
+	-I ./modules/nginx-rtmp-module \
+	-I /usr/local/Cellar/openssl@1.1/1.1.1l/.openssl/include \
 	-I objs \
 	-I src/http \
 	-I src/http/modules
@@ -73,7 +75,9 @@ CORE_DEPS = src/core/nginx.h \
 	src/os/unix/ngx_process_cycle.h \
 	src/os/unix/ngx_darwin_config.h \
 	src/os/unix/ngx_darwin.h \
+	src/event/ngx_event_openssl.h \
 	src/core/ngx_regex.h \
+	/usr/local/Cellar/openssl@1.1/1.1.1l/.openssl/include/openssl/ssl.h \
 	objs/ngx_auto_config.h
 
 
@@ -81,6 +85,8 @@ CORE_INCS = -I src/core \
 	-I src/event \
 	-I src/event/modules \
 	-I src/os/unix \
+	-I ./modules/nginx-rtmp-module \
+	-I /usr/local/Cellar/openssl@1.1/1.1.1l/.openssl/include \
 	-I objs
 
 
@@ -98,6 +104,9 @@ HTTP_DEPS = src/http/ngx_http.h \
 
 HTTP_INCS = -I src/http \
 	-I src/http/modules
+
+
+ADDON_DEPS = $(CORE_DEPS)                                                                   ./modules/nginx-rtmp-module/ngx_rtmp_amf.h                               ./modules/nginx-rtmp-module/ngx_rtmp_bandwidth.h                         ./modules/nginx-rtmp-module/ngx_rtmp_cmd_module.h                        ./modules/nginx-rtmp-module/ngx_rtmp_codec_module.h                      ./modules/nginx-rtmp-module/ngx_rtmp_eval.h                              ./modules/nginx-rtmp-module/ngx_rtmp.h                                   ./modules/nginx-rtmp-module/ngx_rtmp_version.h                           ./modules/nginx-rtmp-module/ngx_rtmp_live_module.h                       ./modules/nginx-rtmp-module/ngx_rtmp_netcall_module.h                    ./modules/nginx-rtmp-module/ngx_rtmp_play_module.h                       ./modules/nginx-rtmp-module/ngx_rtmp_record_module.h                     ./modules/nginx-rtmp-module/ngx_rtmp_relay_module.h                      ./modules/nginx-rtmp-module/ngx_rtmp_streams.h                           ./modules/nginx-rtmp-module/ngx_rtmp_bitop.h                             ./modules/nginx-rtmp-module/ngx_rtmp_proxy_protocol.h                    ./modules/nginx-rtmp-module/hls/ngx_rtmp_mpegts.h                        ./modules/nginx-rtmp-module/dash/ngx_rtmp_mp4.h                           $(HTTP_DEPS)
 
 
 build:	binary modules manpage
@@ -171,6 +180,8 @@ objs/nginx:	objs/src/core/nginx.o \
 	objs/src/os/unix/ngx_darwin_init.o \
 	objs/src/event/modules/ngx_kqueue_module.o \
 	objs/src/os/unix/ngx_darwin_sendfile_chain.o \
+	objs/src/event/ngx_event_openssl.o \
+	objs/src/event/ngx_event_openssl_stapling.o \
 	objs/src/core/ngx_regex.o \
 	objs/src/http/ngx_http.o \
 	objs/src/http/ngx_http_core_module.o \
@@ -223,6 +234,40 @@ objs/nginx:	objs/src/core/nginx.o \
 	objs/src/http/modules/ngx_http_upstream_random_module.o \
 	objs/src/http/modules/ngx_http_upstream_keepalive_module.o \
 	objs/src/http/modules/ngx_http_upstream_zone_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_init.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_handshake.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_handler.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_amf.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_send.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_shared.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_eval.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_receive.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_core_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_cmd_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_codec_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_access_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_record_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_live_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_play_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_flv_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_mp4_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_netcall_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_relay_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_bandwidth.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_exec_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_auto_push_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_notify_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_log_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_limit_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_bitop.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_proxy_protocol.o \
+	objs/addon/hls/ngx_rtmp_hls_module.o \
+	objs/addon/dash/ngx_rtmp_dash_module.o \
+	objs/addon/hls/ngx_rtmp_mpegts.o \
+	objs/addon/dash/ngx_rtmp_mp4.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_stat_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_control_module.o \
 	objs/ngx_modules.o
 
 	$(LINK) -o objs/nginx \
@@ -293,6 +338,8 @@ objs/nginx:	objs/src/core/nginx.o \
 	objs/src/os/unix/ngx_darwin_init.o \
 	objs/src/event/modules/ngx_kqueue_module.o \
 	objs/src/os/unix/ngx_darwin_sendfile_chain.o \
+	objs/src/event/ngx_event_openssl.o \
+	objs/src/event/ngx_event_openssl_stapling.o \
 	objs/src/core/ngx_regex.o \
 	objs/src/http/ngx_http.o \
 	objs/src/http/ngx_http_core_module.o \
@@ -345,8 +392,42 @@ objs/nginx:	objs/src/core/nginx.o \
 	objs/src/http/modules/ngx_http_upstream_random_module.o \
 	objs/src/http/modules/ngx_http_upstream_keepalive_module.o \
 	objs/src/http/modules/ngx_http_upstream_zone_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_init.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_handshake.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_handler.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_amf.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_send.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_shared.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_eval.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_receive.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_core_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_cmd_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_codec_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_access_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_record_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_live_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_play_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_flv_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_mp4_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_netcall_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_relay_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_bandwidth.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_exec_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_auto_push_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_notify_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_log_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_limit_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_bitop.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_proxy_protocol.o \
+	objs/addon/hls/ngx_rtmp_hls_module.o \
+	objs/addon/dash/ngx_rtmp_dash_module.o \
+	objs/addon/hls/ngx_rtmp_mpegts.o \
+	objs/addon/dash/ngx_rtmp_mp4.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_stat_module.o \
+	objs/addon/nginx-rtmp-module/ngx_rtmp_control_module.o \
 	objs/ngx_modules.o \
-	-lpcre -lz
+	-lpcre /usr/local/Cellar/openssl@1.1/1.1.1l/.openssl/lib/libssl.a /usr/local/Cellar/openssl@1.1/1.1.1l/.openssl/lib/libcrypto.a -lz
 	
 
 
@@ -828,6 +909,20 @@ objs/src/os/unix/ngx_darwin_sendfile_chain.o:	$(CORE_DEPS) \
 		src/os/unix/ngx_darwin_sendfile_chain.c
 
 
+objs/src/event/ngx_event_openssl.o:	$(CORE_DEPS) \
+	src/event/ngx_event_openssl.c
+	$(CC) -c $(CFLAGS) $(CORE_INCS) \
+		-o objs/src/event/ngx_event_openssl.o \
+		src/event/ngx_event_openssl.c
+
+
+objs/src/event/ngx_event_openssl_stapling.o:	$(CORE_DEPS) \
+	src/event/ngx_event_openssl_stapling.c
+	$(CC) -c $(CFLAGS) $(CORE_INCS) \
+		-o objs/src/event/ngx_event_openssl_stapling.o \
+		src/event/ngx_event_openssl_stapling.c
+
+
 objs/src/core/ngx_regex.o:	$(CORE_DEPS) \
 	src/core/ngx_regex.c
 	$(CC) -c $(CFLAGS) $(CORE_INCS) \
@@ -1190,6 +1285,252 @@ objs/src/http/modules/ngx_http_upstream_zone_module.o:	$(CORE_DEPS) $(HTTP_DEPS)
 	$(CC) -c $(CFLAGS) $(CORE_INCS) $(HTTP_INCS) \
 		-o objs/src/http/modules/ngx_http_upstream_zone_module.o \
 		src/http/modules/ngx_http_upstream_zone_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp.o \
+		./modules/nginx-rtmp-module/ngx_rtmp.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_init.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_init.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_init.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_init.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_handshake.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_handshake.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_handshake.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_handshake.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_handler.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_handler.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_handler.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_handler.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_amf.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_amf.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_amf.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_amf.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_send.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_send.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_send.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_send.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_shared.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_shared.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_shared.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_shared.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_eval.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_eval.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_eval.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_eval.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_receive.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_receive.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_receive.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_receive.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_core_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_core_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_core_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_core_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_cmd_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_cmd_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_cmd_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_cmd_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_codec_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_codec_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_codec_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_codec_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_access_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_access_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_access_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_access_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_record_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_record_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_record_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_record_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_live_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_live_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_live_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_live_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_play_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_play_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_play_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_play_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_flv_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_flv_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_flv_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_flv_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_mp4_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_mp4_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_mp4_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_mp4_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_netcall_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_netcall_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_netcall_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_netcall_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_relay_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_relay_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_relay_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_relay_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_bandwidth.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_bandwidth.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_bandwidth.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_bandwidth.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_exec_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_exec_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_exec_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_exec_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_auto_push_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_auto_push_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_auto_push_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_auto_push_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_notify_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_notify_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_notify_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_notify_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_log_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_log_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_log_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_log_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_limit_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_limit_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_limit_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_limit_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_bitop.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_bitop.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_bitop.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_bitop.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_proxy_protocol.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_proxy_protocol.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_proxy_protocol.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_proxy_protocol.c
+
+
+objs/addon/hls/ngx_rtmp_hls_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/hls/ngx_rtmp_hls_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/hls/ngx_rtmp_hls_module.o \
+		./modules/nginx-rtmp-module/hls/ngx_rtmp_hls_module.c
+
+
+objs/addon/dash/ngx_rtmp_dash_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/dash/ngx_rtmp_dash_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/dash/ngx_rtmp_dash_module.o \
+		./modules/nginx-rtmp-module/dash/ngx_rtmp_dash_module.c
+
+
+objs/addon/hls/ngx_rtmp_mpegts.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/hls/ngx_rtmp_mpegts.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/hls/ngx_rtmp_mpegts.o \
+		./modules/nginx-rtmp-module/hls/ngx_rtmp_mpegts.c
+
+
+objs/addon/dash/ngx_rtmp_mp4.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/dash/ngx_rtmp_mp4.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/dash/ngx_rtmp_mp4.o \
+		./modules/nginx-rtmp-module/dash/ngx_rtmp_mp4.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_stat_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_stat_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_stat_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_stat_module.c
+
+
+objs/addon/nginx-rtmp-module/ngx_rtmp_control_module.o:	$(ADDON_DEPS) \
+	./modules/nginx-rtmp-module/ngx_rtmp_control_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/nginx-rtmp-module/ngx_rtmp_control_module.o \
+		./modules/nginx-rtmp-module/ngx_rtmp_control_module.c
+
+
+/usr/local/Cellar/openssl@1.1/1.1.1l/.openssl/include/openssl/ssl.h:	objs/Makefile
+	cd /usr/local/Cellar/openssl@1.1/1.1.1l \
+	&& if [ -f Makefile ]; then $(MAKE) clean; fi \
+	&& ./config --prefix=/usr/local/Cellar/openssl@1.1/1.1.1l/.openssl no-shared no-threads  \
+	&& $(MAKE) \
+	&& $(MAKE) install_sw LIBDIR=lib
 
 
 manpage:	objs/nginx.8

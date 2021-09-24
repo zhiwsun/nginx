@@ -1,7 +1,7 @@
-#define NGX_CONFIGURE ""
+#define NGX_CONFIGURE " --add-module=./modules/nginx-rtmp-module --with-openssl=/usr/local/Cellar/openssl@1.1/1.1.1l"
 
 #ifndef NGX_COMPILER
-#define NGX_COMPILER  "clang 12.0.5 (clang-1205.0.22.11)"
+#define NGX_COMPILER  "clang 13.0.0 (clang-1300.0.29.3)"
 #endif
 
 
@@ -305,6 +305,16 @@
 
 #ifndef NGX_HAVE_PCRE_JIT
 #define NGX_HAVE_PCRE_JIT  1
+#endif
+
+
+#ifndef NGX_OPENSSL
+#define NGX_OPENSSL  1
+#endif
+
+
+#ifndef NGX_SSL
+#define NGX_SSL  1
 #endif
 
 
