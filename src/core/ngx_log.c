@@ -16,8 +16,7 @@ static void ngx_log_insert(ngx_log_t *log, ngx_log_t *new_log);
 
 #if (NGX_DEBUG)
 
-static void ngx_log_memory_writer(ngx_log_t *log, ngx_uint_t level,
-    u_char *buf, size_t len);
+static void ngx_log_memory_writer(ngx_log_t *log, ngx_uint_t level, u_char *buf, size_t len);
 static void ngx_log_memory_cleanup(void *data);
 
 
@@ -114,14 +113,12 @@ ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err,
 
     last = errstr + NGX_MAX_ERROR_STR;
 
-    p = ngx_cpymem(errstr, ngx_cached_err_log_time.data,
-                   ngx_cached_err_log_time.len);
+    p = ngx_cpymem(errstr, ngx_cached_err_log_time.data, ngx_cached_err_log_time.len);
 
     p = ngx_slprintf(p, last, " [%V] ", &err_levels[level]);
 
     /* pid#tid */
-    p = ngx_slprintf(p, last, "%P#" NGX_TID_T_FMT ": ",
-                    ngx_log_pid, ngx_log_tid);
+    p = ngx_slprintf(p, last, "%P#" NGX_TID_T_FMT ": ", ngx_log_pid, ngx_log_tid);
 
     if (log->connection) {
         p = ngx_slprintf(p, last, "*%uA ", log->connection);
@@ -195,9 +192,7 @@ ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err,
         log = log->next;
     }
 
-    if (!ngx_use_stderr
-        || level > NGX_LOG_WARN
-        || wrote_stderr)
+    if (!ngx_use_stderr || level > NGX_LOG_WARN || wrote_stderr)
     {
         return;
     }
@@ -250,8 +245,7 @@ ngx_log_abort(ngx_err_t err, const char *fmt, ...)
     p = ngx_vsnprintf(errstr, sizeof(errstr) - 1, fmt, args);
     va_end(args);
 
-    ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, err,
-                  "%*s", p - errstr, errstr);
+    ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, err, "%*s", p - errstr, errstr);
 }
 
 
@@ -373,9 +367,7 @@ ngx_log_init(u_char *prefix, u_char *error_log)
         }
     }
 
-    ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND,
-                                    NGX_FILE_CREATE_OR_OPEN,
-                                    NGX_FILE_DEFAULT_ACCESS);
+    ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND, NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
 
     if (ngx_log_file.fd == NGX_INVALID_FILE) {
         ngx_log_stderr(ngx_errno,

@@ -11,61 +11,34 @@
 
 
 static char *ngx_http_block(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
-static ngx_int_t ngx_http_init_phases(ngx_conf_t *cf,
-    ngx_http_core_main_conf_t *cmcf);
-static ngx_int_t ngx_http_init_headers_in_hash(ngx_conf_t *cf,
-    ngx_http_core_main_conf_t *cmcf);
-static ngx_int_t ngx_http_init_phase_handlers(ngx_conf_t *cf,
-    ngx_http_core_main_conf_t *cmcf);
+static ngx_int_t ngx_http_init_phases(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf);
+static ngx_int_t ngx_http_init_headers_in_hash(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf);
+static ngx_int_t ngx_http_init_phase_handlers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf);
 
-static ngx_int_t ngx_http_add_addresses(ngx_conf_t *cf,
-    ngx_http_core_srv_conf_t *cscf, ngx_http_conf_port_t *port,
-    ngx_http_listen_opt_t *lsopt);
-static ngx_int_t ngx_http_add_address(ngx_conf_t *cf,
-    ngx_http_core_srv_conf_t *cscf, ngx_http_conf_port_t *port,
-    ngx_http_listen_opt_t *lsopt);
-static ngx_int_t ngx_http_add_server(ngx_conf_t *cf,
-    ngx_http_core_srv_conf_t *cscf, ngx_http_conf_addr_t *addr);
+static ngx_int_t ngx_http_add_addresses(ngx_conf_t *cf, ngx_http_core_srv_conf_t *cscf, ngx_http_conf_port_t *port, ngx_http_listen_opt_t *lsopt);
+static ngx_int_t ngx_http_add_address(ngx_conf_t *cf, ngx_http_core_srv_conf_t *cscf, ngx_http_conf_port_t *port, ngx_http_listen_opt_t *lsopt);
+static ngx_int_t ngx_http_add_server(ngx_conf_t *cf, ngx_http_core_srv_conf_t *cscf, ngx_http_conf_addr_t *addr);
 
-static char *ngx_http_merge_servers(ngx_conf_t *cf,
-    ngx_http_core_main_conf_t *cmcf, ngx_http_module_t *module,
-    ngx_uint_t ctx_index);
-static char *ngx_http_merge_locations(ngx_conf_t *cf,
-    ngx_queue_t *locations, void **loc_conf, ngx_http_module_t *module,
-    ngx_uint_t ctx_index);
-static ngx_int_t ngx_http_init_locations(ngx_conf_t *cf,
-    ngx_http_core_srv_conf_t *cscf, ngx_http_core_loc_conf_t *pclcf);
-static ngx_int_t ngx_http_init_static_location_trees(ngx_conf_t *cf,
-    ngx_http_core_loc_conf_t *pclcf);
-static ngx_int_t ngx_http_escape_location_name(ngx_conf_t *cf,
-    ngx_http_core_loc_conf_t *clcf);
-static ngx_int_t ngx_http_cmp_locations(const ngx_queue_t *one,
-    const ngx_queue_t *two);
-static ngx_int_t ngx_http_join_exact_locations(ngx_conf_t *cf,
-    ngx_queue_t *locations);
-static void ngx_http_create_locations_list(ngx_queue_t *locations,
-    ngx_queue_t *q);
-static ngx_http_location_tree_node_t *
-    ngx_http_create_locations_tree(ngx_conf_t *cf, ngx_queue_t *locations,
-    size_t prefix);
+static char *ngx_http_merge_servers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf, ngx_http_module_t *module, ngx_uint_t ctx_index);
+static char *ngx_http_merge_locations(ngx_conf_t *cf, ngx_queue_t *locations, void **loc_conf, ngx_http_module_t *module, ngx_uint_t ctx_index);
+static ngx_int_t ngx_http_init_locations(ngx_conf_t *cf, ngx_http_core_srv_conf_t *cscf, ngx_http_core_loc_conf_t *pclcf);
+static ngx_int_t ngx_http_init_static_location_trees(ngx_conf_t *cf, ngx_http_core_loc_conf_t *pclcf);
+static ngx_int_t ngx_http_escape_location_name(ngx_conf_t *cf, ngx_http_core_loc_conf_t *clcf);
+static ngx_int_t ngx_http_cmp_locations(const ngx_queue_t *one, const ngx_queue_t *two);
+static ngx_int_t ngx_http_join_exact_locations(ngx_conf_t *cf, ngx_queue_t *locations);
+static void ngx_http_create_locations_list(ngx_queue_t *locations, ngx_queue_t *q);
+static ngx_http_location_tree_node_t * ngx_http_create_locations_tree(ngx_conf_t *cf, ngx_queue_t *locations, size_t prefix);
 
-static ngx_int_t ngx_http_optimize_servers(ngx_conf_t *cf,
-    ngx_http_core_main_conf_t *cmcf, ngx_array_t *ports);
-static ngx_int_t ngx_http_server_names(ngx_conf_t *cf,
-    ngx_http_core_main_conf_t *cmcf, ngx_http_conf_addr_t *addr);
+static ngx_int_t ngx_http_optimize_servers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf, ngx_array_t *ports);
+static ngx_int_t ngx_http_server_names(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf, ngx_http_conf_addr_t *addr);
 static ngx_int_t ngx_http_cmp_conf_addrs(const void *one, const void *two);
-static int ngx_libc_cdecl ngx_http_cmp_dns_wildcards(const void *one,
-    const void *two);
+static int ngx_libc_cdecl ngx_http_cmp_dns_wildcards(const void *one, const void *two);
 
-static ngx_int_t ngx_http_init_listening(ngx_conf_t *cf,
-    ngx_http_conf_port_t *port);
-static ngx_listening_t *ngx_http_add_listening(ngx_conf_t *cf,
-    ngx_http_conf_addr_t *addr);
-static ngx_int_t ngx_http_add_addrs(ngx_conf_t *cf, ngx_http_port_t *hport,
-    ngx_http_conf_addr_t *addr);
+static ngx_int_t ngx_http_init_listening(ngx_conf_t *cf, ngx_http_conf_port_t *port);
+static ngx_listening_t *ngx_http_add_listening(ngx_conf_t *cf, ngx_http_conf_addr_t *addr);
+static ngx_int_t ngx_http_add_addrs(ngx_conf_t *cf, ngx_http_port_t *hport, ngx_http_conf_addr_t *addr);
 #if (NGX_HAVE_INET6)
-static ngx_int_t ngx_http_add_addrs6(ngx_conf_t *cf, ngx_http_port_t *hport,
-    ngx_http_conf_addr_t *addr);
+static ngx_int_t ngx_http_add_addrs6(ngx_conf_t *cf, ngx_http_port_t *hport, ngx_http_conf_addr_t *addr);
 #endif
 
 ngx_uint_t   ngx_http_max_module;
@@ -349,57 +322,49 @@ failed:
 static ngx_int_t
 ngx_http_init_phases(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
 {
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_POST_READ_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_POST_READ_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_SERVER_REWRITE_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_SERVER_REWRITE_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_REWRITE_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_REWRITE_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_PREACCESS_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_PREACCESS_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers,
-                       cf->pool, 2, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers, cf->pool, 2, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_PRECONTENT_PHASE].handlers,
-                       cf->pool, 2, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_PRECONTENT_PHASE].handlers, cf->pool, 2, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_CONTENT_PHASE].handlers,
-                       cf->pool, 4, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_CONTENT_PHASE].handlers, cf->pool, 4, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_LOG_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_LOG_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt))
         != NGX_OK)
     {
         return NGX_ERROR;
@@ -474,8 +439,7 @@ ngx_http_init_phase_handlers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
         n += cmcf->phases[i].handlers.nelts;
     }
 
-    ph = ngx_pcalloc(cf->pool,
-                     n * sizeof(ngx_http_phase_handler_t) + sizeof(void *));
+    ph = ngx_pcalloc(cf->pool, n * sizeof(ngx_http_phase_handler_t) + sizeof(void *));
     if (ph == NULL) {
         return NGX_ERROR;
     }
@@ -560,8 +524,7 @@ ngx_http_init_phase_handlers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
 
 
 static char *
-ngx_http_merge_servers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf,
-    ngx_http_module_t *module, ngx_uint_t ctx_index)
+ngx_http_merge_servers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf, ngx_http_module_t *module, ngx_uint_t ctx_index)
 {
     char                        *rv;
     ngx_uint_t                   s;
@@ -581,8 +544,7 @@ ngx_http_merge_servers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf,
         ctx->srv_conf = cscfp[s]->ctx->srv_conf;
 
         if (module->merge_srv_conf) {
-            rv = module->merge_srv_conf(cf, saved.srv_conf[ctx_index],
-                                        cscfp[s]->ctx->srv_conf[ctx_index]);
+            rv = module->merge_srv_conf(cf, saved.srv_conf[ctx_index], cscfp[s]->ctx->srv_conf[ctx_index]);
             if (rv != NGX_CONF_OK) {
                 goto failed;
             }
@@ -594,8 +556,7 @@ ngx_http_merge_servers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf,
 
             ctx->loc_conf = cscfp[s]->ctx->loc_conf;
 
-            rv = module->merge_loc_conf(cf, saved.loc_conf[ctx_index],
-                                        cscfp[s]->ctx->loc_conf[ctx_index]);
+            rv = module->merge_loc_conf(cf, saved.loc_conf[ctx_index], cscfp[s]->ctx->loc_conf[ctx_index]);
             if (rv != NGX_CONF_OK) {
                 goto failed;
             }
@@ -604,9 +565,7 @@ ngx_http_merge_servers(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf,
 
             clcf = cscfp[s]->ctx->loc_conf[ngx_http_core_module.ctx_index];
 
-            rv = ngx_http_merge_locations(cf, clcf->locations,
-                                          cscfp[s]->ctx->loc_conf,
-                                          module, ctx_index);
+            rv = ngx_http_merge_locations(cf, clcf->locations, cscfp[s]->ctx->loc_conf, module, ctx_index);
             if (rv != NGX_CONF_OK) {
                 goto failed;
             }
@@ -622,8 +581,7 @@ failed:
 
 
 static char *
-ngx_http_merge_locations(ngx_conf_t *cf, ngx_queue_t *locations,
-    void **loc_conf, ngx_http_module_t *module, ngx_uint_t ctx_index)
+ngx_http_merge_locations(ngx_conf_t *cf, ngx_queue_t *locations, void **loc_conf, ngx_http_module_t *module, ngx_uint_t ctx_index)
 {
     char                       *rv;
     ngx_queue_t                *q;
@@ -647,14 +605,12 @@ ngx_http_merge_locations(ngx_conf_t *cf, ngx_queue_t *locations,
         clcf = lq->exact ? lq->exact : lq->inclusive;
         ctx->loc_conf = clcf->loc_conf;
 
-        rv = module->merge_loc_conf(cf, loc_conf[ctx_index],
-                                    clcf->loc_conf[ctx_index]);
+        rv = module->merge_loc_conf(cf, loc_conf[ctx_index], clcf->loc_conf[ctx_index]);
         if (rv != NGX_CONF_OK) {
             return rv;
         }
 
-        rv = ngx_http_merge_locations(cf, clcf->locations, clcf->loc_conf,
-                                      module, ctx_index);
+        rv = ngx_http_merge_locations(cf, clcf->locations, clcf->loc_conf, module, ctx_index);
         if (rv != NGX_CONF_OK) {
             return rv;
         }

@@ -43,8 +43,7 @@
 
 
 typedef u_char *(*ngx_log_handler_pt) (ngx_log_t *log, u_char *buf, size_t len);
-typedef void (*ngx_log_writer_pt) (ngx_log_t *log, ngx_uint_t level,
-    u_char *buf, size_t len);
+typedef void (*ngx_log_writer_pt) (ngx_log_t *log, ngx_uint_t level, u_char *buf, size_t len);
 
 
 struct ngx_log_s {
@@ -114,12 +113,9 @@ void ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err,
 
 #define NGX_HAVE_VARIADIC_MACROS  0
 
-void ngx_cdecl ngx_log_error(ngx_uint_t level, ngx_log_t *log, ngx_err_t err,
-    const char *fmt, ...);
-void ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err,
-    const char *fmt, va_list args);
-void ngx_cdecl ngx_log_debug_core(ngx_log_t *log, ngx_err_t err,
-    const char *fmt, ...);
+void ngx_cdecl ngx_log_error(ngx_uint_t level, ngx_log_t *log, ngx_err_t err, const char *fmt, ...);
+void ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err, const char *fmt, va_list args);
+void ngx_cdecl ngx_log_debug_core(ngx_log_t *log, ngx_err_t err, const char *fmt, ...);
 
 
 #endif /* variadic macros */
@@ -219,10 +215,8 @@ void ngx_cdecl ngx_log_debug_core(ngx_log_t *log, ngx_err_t err,
 #define ngx_log_debug4(level, log, err, fmt, arg1, arg2, arg3, arg4)
 #define ngx_log_debug5(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5)
 #define ngx_log_debug6(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
-#define ngx_log_debug7(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5,    \
-                       arg6, arg7)
-#define ngx_log_debug8(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5,    \
-                       arg6, arg7, arg8)
+#define ngx_log_debug7(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+#define ngx_log_debug8(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
 
 #endif
 

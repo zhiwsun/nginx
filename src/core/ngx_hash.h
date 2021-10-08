@@ -100,13 +100,10 @@ typedef struct {
 void *ngx_hash_find(ngx_hash_t *hash, ngx_uint_t key, u_char *name, size_t len);
 void *ngx_hash_find_wc_head(ngx_hash_wildcard_t *hwc, u_char *name, size_t len);
 void *ngx_hash_find_wc_tail(ngx_hash_wildcard_t *hwc, u_char *name, size_t len);
-void *ngx_hash_find_combined(ngx_hash_combined_t *hash, ngx_uint_t key,
-    u_char *name, size_t len);
+void *ngx_hash_find_combined(ngx_hash_combined_t *hash, ngx_uint_t key, u_char *name, size_t len);
 
-ngx_int_t ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
-    ngx_uint_t nelts);
-ngx_int_t ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
-    ngx_uint_t nelts);
+ngx_int_t ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts);
+ngx_int_t ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts);
 
 #define ngx_hash(key, c)   ((ngx_uint_t) key * 31 + c)
 ngx_uint_t ngx_hash_key(u_char *data, size_t len);
@@ -115,8 +112,7 @@ ngx_uint_t ngx_hash_strlow(u_char *dst, u_char *src, size_t n);
 
 
 ngx_int_t ngx_hash_keys_array_init(ngx_hash_keys_arrays_t *ha, ngx_uint_t type);
-ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key,
-    void *value, ngx_uint_t flags);
+ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key, void *value, ngx_uint_t flags);
 
 
 #endif /* _NGX_HASH_H_INCLUDED_ */
