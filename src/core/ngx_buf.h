@@ -17,6 +17,7 @@ typedef void *            ngx_buf_tag_t;
 
 typedef struct ngx_buf_s  ngx_buf_t;
 
+// ZHIWU: Nginx缓存定义
 struct ngx_buf_s {
     u_char          *pos;
     u_char          *last;
@@ -56,6 +57,7 @@ struct ngx_buf_s {
 };
 
 
+// ZHIWU: Nginx缓存链定义
 struct ngx_chain_s {
     ngx_buf_t    *buf;
     ngx_chain_t  *next;
@@ -72,8 +74,7 @@ typedef struct ngx_output_chain_ctx_s  ngx_output_chain_ctx_t;
 
 typedef ngx_int_t (*ngx_output_chain_filter_pt)(void *ctx, ngx_chain_t *in);
 
-typedef void (*ngx_output_chain_aio_pt)(ngx_output_chain_ctx_t *ctx,
-    ngx_file_t *file);
+typedef void (*ngx_output_chain_aio_pt)(ngx_output_chain_ctx_t *ctx, ngx_file_t *file);
 
 struct ngx_output_chain_ctx_s {
     ngx_buf_t                   *buf;

@@ -74,10 +74,15 @@
 #define NGX_MAX_CONF_ERRSTR  1024
 
 
+// ZHIWU: Nginx命令定义
 struct ngx_command_s {
+    // 配置指令名称，如：proxy_pass
     ngx_str_t             name;
+    // 配置指令类型：4种
     ngx_uint_t            type;
+    // 函数指针，指向该配置对应的处理函数
     char               *(*set)(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+    // 配置位置和存储偏移量，根据这2个信息可以得到配置信息实际的存储位置
     ngx_uint_t            conf;
     ngx_uint_t            offset;
     void                 *post;
@@ -109,10 +114,10 @@ typedef struct {
 } ngx_conf_dump_t;
 
 
-typedef char *(*ngx_conf_handler_pt)(ngx_conf_t *cf,
-    ngx_command_t *dummy, void *conf);
+typedef char *(*ngx_conf_handler_pt)(ngx_conf_t *cf, ngx_command_t *dummy, void *conf);
 
 
+// ZHIWU: Nginx配置定义
 struct ngx_conf_s {
     char                 *name;
     ngx_array_t          *args;
@@ -132,8 +137,7 @@ struct ngx_conf_s {
 };
 
 
-typedef char *(*ngx_conf_post_handler_pt) (ngx_conf_t *cf,
-    void *data, void *conf);
+typedef char *(*ngx_conf_post_handler_pt) (ngx_conf_t *cf, void *data, void *conf);
 
 typedef struct {
     ngx_conf_post_handler_pt  post_handler;
@@ -270,17 +274,14 @@ char *ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename);
 char *ngx_conf_include(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 
-ngx_int_t ngx_conf_full_name(ngx_cycle_t *cycle, ngx_str_t *name,
-    ngx_uint_t conf_prefix);
+ngx_int_t ngx_conf_full_name(ngx_cycle_t *cycle, ngx_str_t *name, ngx_uint_t conf_prefix);
 ngx_open_file_t *ngx_conf_open_file(ngx_cycle_t *cycle, ngx_str_t *name);
-void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf,
-    ngx_err_t err, const char *fmt, ...);
+void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf, ngx_err_t err, const char *fmt, ...);
 
 
 char *ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_str_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
-char *ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+char *ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_keyval_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_num_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_size_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);

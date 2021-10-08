@@ -219,6 +219,7 @@
 #define NGX_MODULE_V1_PADDING  0, 0, 0, 0, 0, 0, 0, 0
 
 
+// ZHIWU: Nginx模块定义，各模块的定义都遵循这个结构
 struct ngx_module_s {
     ngx_uint_t            ctx_index;
     ngx_uint_t            index;
@@ -257,6 +258,7 @@ struct ngx_module_s {
 };
 
 
+// ZHIWU: Nginx核心模块定义
 typedef struct {
     ngx_str_t             name;
     void               *(*create_conf)(ngx_cycle_t *cycle);

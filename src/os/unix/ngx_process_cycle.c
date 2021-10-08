@@ -83,6 +83,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
     ngx_msec_t         delay;
     ngx_core_conf_t   *ccf;
 
+    // 设置进程信号
     sigemptyset(&set);
     sigaddset(&set, SIGCHLD);
     sigaddset(&set, SIGALRM);
@@ -95,12 +96,13 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
     sigaddset(&set, ngx_signal_value(NGX_SHUTDOWN_SIGNAL));
     sigaddset(&set, ngx_signal_value(NGX_CHANGEBIN_SIGNAL));
 
+    // 初始化信号掩码
     if (sigprocmask(SIG_BLOCK, &set, NULL) == -1) {
         ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "sigprocmask() failed");
     }
 
+    // 清空信号集合，作为后续sigsuspend函数参数，允许任何信号传递
     sigemptyset(&set);
-
 
     size = sizeof(master_process);
 
@@ -122,10 +124,11 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
 
     ngx_setproctitle(title);
 
-
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
+    // 派生worker进程
     ngx_start_worker_processes(cycle, ccf->worker_processes, NGX_PROCESS_RESPAWN);
+    // 派生cache-manager和cache-loader进程
     ngx_start_cache_manager_processes(cycle, 0);
 
     ngx_new_binary = 0;
@@ -133,7 +136,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
     sigio = 0;
     live = 1;
 
-    // ZHIWU: 循环执行
+    // 循环执行
     for ( ;; ) {
         if (delay) {
             if (ngx_sigalrm) {
@@ -156,6 +159,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
 
         ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "sigsuspend");
 
+        // 进程挂起等待信号
         sigsuspend(&set);
 
         ngx_time_update();
@@ -165,7 +169,6 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
         if (ngx_reap) {
             ngx_reap = 0;
             ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "reap children");
-
             live = ngx_reap_children(cycle);
         }
 
@@ -389,16 +392,19 @@ ngx_pass_open_channel(ngx_cycle_t *cycle)
 
     ngx_memzero(&ch, sizeof(ngx_channel_t));
 
+    // NGX_CMD_OPEN_CHANNEL 表示当前新建了一个线程
     ch.command = NGX_CMD_OPEN_CHANNEL;
+    // 保存worker进程信息
     ch.pid = ngx_processes[ngx_process_slot].pid;
     ch.slot = ngx_process_slot;
+
+    // 保存worker进程的fd
+    // 子进程和父进程质检使用socketpair系统函数建立起来的全双工Socket连接，channel[0]是父进程Socket，channel[1]是子进程Socket
     ch.fd = ngx_processes[ngx_process_slot].channel[0];
 
     for (i = 0; i < ngx_last_process; i++) {
 
-        if (i == ngx_process_slot
-            || ngx_processes[i].pid == -1
-            || ngx_processes[i].channel[0] == -1)
+        if (i == ngx_process_slot || ngx_processes[i].pid == -1 || ngx_processes[i].channel[0] == -1)
         {
             continue;
         }
@@ -411,8 +417,7 @@ ngx_pass_open_channel(ngx_cycle_t *cycle)
 
         /* TODO: NGX_AGAIN */
 
-        ngx_write_channel(ngx_processes[i].channel[0],
-                          &ch, sizeof(ngx_channel_t), cycle->log);
+        ngx_write_channel(ngx_processes[i].channel[0], &ch, sizeof(ngx_channel_t), cycle->log);
     }
 }
 
@@ -684,6 +689,7 @@ ngx_master_process_exit(ngx_cycle_t *cycle)
 }
 
 
+// ZHIWU: worker进程的主循环
 static void
 ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 {
@@ -696,6 +702,7 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
     ngx_setproctitle("worker process");
 
+    // 主循环
     for ( ;; ) {
 
         if (ngx_exiting) {
@@ -707,6 +714,7 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
         ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "worker cycle");
 
+        // 监听事件和处理事件
         ngx_process_events_and_timers(cycle);
 
         if (ngx_terminate) {
@@ -716,8 +724,7 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
         if (ngx_quit) {
             ngx_quit = 0;
-            ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0,
-                          "gracefully shutting down");
+            ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "gracefully shutting down");
             ngx_setproctitle("worker process is shutting down");
 
             if (!ngx_exiting) {

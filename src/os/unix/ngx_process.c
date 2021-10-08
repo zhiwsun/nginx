@@ -33,6 +33,8 @@ char           **ngx_os_argv;
 ngx_int_t        ngx_process_slot;
 ngx_socket_t     ngx_channel;
 ngx_int_t        ngx_last_process;
+
+// ZHIWU: Nginx所有子进程数组，每个子进程都有一个ngx_process_t描述
 ngx_process_t    ngx_processes[NGX_MAX_PROCESSES];
 
 
@@ -84,8 +86,7 @@ ngx_signal_t  signals[] = {
 
 
 ngx_pid_t
-ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
-    char *name, ngx_int_t respawn)
+ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data, char *name, ngx_int_t respawn)
 {
     u_long     on;
     ngx_pid_t  pid;
@@ -93,7 +94,6 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
 
     if (respawn >= 0) {
         s = respawn;
-
     } else {
         for (s = 0; s < ngx_last_process; s++) {
             if (ngx_processes[s].pid == -1) {
@@ -110,65 +110,57 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
     }
 
 
+    // NGX_PROCESS_DETACHED 表示子进程和父进程之间没有任何关系，如：热升级时
     if (respawn != NGX_PROCESS_DETACHED) {
 
-        /* Solaris 9 still has no AF_LOCAL */
-
+        // 相当于master进程调用socketpaire函数为新的worker进程创建全双工的Socket
         if (socketpair(AF_UNIX, SOCK_STREAM, 0, ngx_processes[s].channel) == -1)
         {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          "socketpair() failed while spawning \"%s\"", name);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "socketpair() failed while spawning \"%s\"", name);
             return NGX_INVALID_PID;
         }
 
-        ngx_log_debug2(NGX_LOG_DEBUG_CORE, cycle->log, 0,
-                       "channel %d:%d",
-                       ngx_processes[s].channel[0],
-                       ngx_processes[s].channel[1]);
+        ngx_log_debug2(NGX_LOG_DEBUG_CORE, cycle->log, 0, "channel %d:%d", ngx_processes[s].channel[0], ngx_processes[s].channel[1]);
 
+        // 设置master进程的channel[0]为非阻塞式，channel[0] 代表写端口
         if (ngx_nonblocking(ngx_processes[s].channel[0]) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          ngx_nonblocking_n " failed while spawning \"%s\"",
-                          name);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_nonblocking_n " failed while spawning \"%s\"", name);
             ngx_close_channel(ngx_processes[s].channel, cycle->log);
             return NGX_INVALID_PID;
         }
 
+        // 设置master进程的channel[1]为非阻塞式，channel[1] 代表读端口
         if (ngx_nonblocking(ngx_processes[s].channel[1]) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          ngx_nonblocking_n " failed while spawning \"%s\"",
-                          name);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_nonblocking_n " failed while spawning \"%s\"", name);
             ngx_close_channel(ngx_processes[s].channel, cycle->log);
             return NGX_INVALID_PID;
         }
 
+        // 设置异步模式
         on = 1;
+
+        // 设置channel[0]的信号驱动异步I/O标志，FIOASYNC为异步I/O信号
         if (ioctl(ngx_processes[s].channel[0], FIOASYNC, &on) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          "ioctl(FIOASYNC) failed while spawning \"%s\"", name);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "ioctl(FIOASYNC) failed while spawning \"%s\"", name);
             ngx_close_channel(ngx_processes[s].channel, cycle->log);
             return NGX_INVALID_PID;
         }
 
+        // F_SETOWN 用于指定接收 SIGIO 和 SIGURG 信号的Socket属主（进程ID或进程组ID）
         if (fcntl(ngx_processes[s].channel[0], F_SETOWN, ngx_pid) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          "fcntl(F_SETOWN) failed while spawning \"%s\"", name);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "fcntl(F_SETOWN) failed while spawning \"%s\"", name);
             ngx_close_channel(ngx_processes[s].channel, cycle->log);
             return NGX_INVALID_PID;
         }
 
         if (fcntl(ngx_processes[s].channel[0], F_SETFD, FD_CLOEXEC) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          "fcntl(FD_CLOEXEC) failed while spawning \"%s\"",
-                           name);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "fcntl(FD_CLOEXEC) failed while spawning \"%s\"", name);
             ngx_close_channel(ngx_processes[s].channel, cycle->log);
             return NGX_INVALID_PID;
         }
 
         if (fcntl(ngx_processes[s].channel[1], F_SETFD, FD_CLOEXEC) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          "fcntl(FD_CLOEXEC) failed while spawning \"%s\"",
-                           name);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "fcntl(FD_CLOEXEC) failed while spawning \"%s\"", name);
             ngx_close_channel(ngx_processes[s].channel, cycle->log);
             return NGX_INVALID_PID;
         }
@@ -176,20 +168,19 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
         ngx_channel = ngx_processes[s].channel[1];
 
     } else {
+        // respawn == NGX_PROCESS_DETACHED，表示当前进程是一个新的master进程，channel信息都设置为-1
         ngx_processes[s].channel[0] = -1;
         ngx_processes[s].channel[1] = -1;
     }
 
     ngx_process_slot = s;
 
-
     pid = fork();
 
     switch (pid) {
 
     case -1:
-        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                      "fork() failed while spawning \"%s\"", name);
+        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "fork() failed while spawning \"%s\"", name);
         ngx_close_channel(ngx_processes[s].channel, cycle->log);
         return NGX_INVALID_PID;
 
@@ -261,8 +252,7 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
 ngx_pid_t
 ngx_execute(ngx_cycle_t *cycle, ngx_exec_ctx_t *ctx)
 {
-    return ngx_spawn_process(cycle, ngx_execute_proc, ctx, ctx->name,
-                             NGX_PROCESS_DETACHED);
+    return ngx_spawn_process(cycle, ngx_execute_proc, ctx, ctx->name, NGX_PROCESS_DETACHED);
 }
 
 
@@ -613,8 +603,7 @@ ngx_debug_point(void)
 {
     ngx_core_conf_t  *ccf;
 
-    ccf = (ngx_core_conf_t *) ngx_get_conf(ngx_cycle->conf_ctx,
-                                           ngx_core_module);
+    ccf = (ngx_core_conf_t *) ngx_get_conf(ngx_cycle->conf_ctx, ngx_core_module);
 
     switch (ccf->debug_points) {
 

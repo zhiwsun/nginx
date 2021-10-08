@@ -9,11 +9,13 @@
 #include <ngx_core.h>
 
 
+// ZHIWU: Nginx以daemon模式启动，派生master进程
 ngx_int_t
 ngx_daemon(ngx_log_t *log)
 {
     int  fd;
 
+    // 派生一个子进程，该子进程为master进程
     switch (fork()) {
     case -1:
         ngx_log_error(NGX_LOG_EMERG, log, ngx_errno, "fork() failed");

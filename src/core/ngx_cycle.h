@@ -36,28 +36,38 @@ struct ngx_shm_zone_s {
 };
 
 
+// ZHIWU: Nginx生命周期定义
 struct ngx_cycle_s {
-    void                  ****conf_ctx;
-    ngx_pool_t               *pool;
 
+    // 保持所有模块的配置信息
+    void                  ****conf_ctx;
+    // 内存池
+    ngx_pool_t               *pool;
+    // 日志相关
     ngx_log_t                *log;
     ngx_log_t                 new_log;
-
     ngx_uint_t                log_use_stderr;  /* unsigned  log_use_stderr:1; */
 
+    // 文件句柄
     ngx_connection_t        **files;
+    // 可用连接池
     ngx_connection_t         *free_connections;
+    // 可用连接池数
     ngx_uint_t                free_connection_n;
 
+    // 模块信息
     ngx_module_t            **modules;
     ngx_uint_t                modules_n;
     ngx_uint_t                modules_used;    /* unsigned  modules_used:1; */
 
+    // 队列
     ngx_queue_t               reusable_connections_queue;
     ngx_uint_t                reusable_connections_n;
     time_t                    connections_reuse_time;
 
+    // 监听端口
     ngx_array_t               listening;
+    // 操作目录
     ngx_array_t               paths;
 
     ngx_array_t               config_dump;
@@ -81,6 +91,8 @@ struct ngx_cycle_s {
     ngx_str_t                 conf_prefix;
     ngx_str_t                 prefix;
     ngx_str_t                 error_log;
+
+    // 用户进程间同步的文件锁
     ngx_str_t                 lock_file;
     ngx_str_t                 hostname;
 };

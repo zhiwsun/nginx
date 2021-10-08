@@ -246,7 +246,7 @@ main(int argc, char *const *argv)
     // init_cycle->log is required for signal handlers and ngx_process_options()
     ngx_memzero(&init_cycle, sizeof(ngx_cycle_t));
     init_cycle.log = log;
-    // ZHIWU: init_cycle 是一个临时变量，初始化之后将其指针赋值给全局变量
+    // init_cycle 是一个临时变量，初始化之后将其指针赋值给全局变量
     ngx_cycle = &init_cycle;
 
     init_cycle.pool = ngx_create_pool(1024, log);
@@ -259,17 +259,17 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-    // ZHIWU: 设置各种配置变量
+    // 设置各种配置变量
     if (ngx_process_options(&init_cycle) != NGX_OK) {
         return 1;
     }
 
-    // ZHIWU: 初始化系统相关变量，如：内存页面大小ngx_pagesize、最大连接数ngx_max_sockets等
+    // 初始化系统相关变量，如：内存页面大小ngx_pagesize、最大连接数ngx_max_sockets等
     if (ngx_os_init(log) != NGX_OK) {
         return 1;
     }
 
-    // ZHIWU: 初始化CRC表，循环冗余校验表
+    // 初始化CRC表，循环冗余校验表
     // ngx_crc32_table_init() requires ngx_cacheline_size set in ngx_os_init()
     if (ngx_crc32_table_init() != NGX_OK) {
         return 1;
@@ -288,7 +288,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-    // ZHIWU: 初始化ngx_cycle
+    // 初始化ngx_cycle
     cycle = ngx_init_cycle(&init_cycle);
     if (cycle == NULL) {
         if (ngx_test_config) {
@@ -306,7 +306,6 @@ main(int argc, char *const *argv)
             cd = cycle->config_dump.elts;
 
             for (i = 0; i < cycle->config_dump.nelts; i++) {
-
                 ngx_write_stdout("# configuration file ");
                 (void) ngx_write_fd(ngx_stdout, cd[i].name.data, cd[i].name.len);
                 ngx_write_stdout(":" NGX_LINEFEED);
@@ -315,11 +314,11 @@ main(int argc, char *const *argv)
                 ngx_write_stdout(NGX_LINEFEED);
             }
         }
-
+        // 这里直接退出了， nginx -t 命令
         return 0;
     }
 
-    // ZHIWU: signal 信号处理
+    // signal 信号处理
     if (ngx_signal) {
         return ngx_signal_process(cycle, ngx_signal);
     }
@@ -341,6 +340,7 @@ main(int argc, char *const *argv)
     }
 
     if (!ngx_inherited && ccf->daemon) {
+        // 从当前的terminal进程中派生Nginx的master进程，当启动过程结束后terminal进程会结束
         if (ngx_daemon(cycle->log) != NGX_OK) {
             return 1;
         }
@@ -354,12 +354,12 @@ main(int argc, char *const *argv)
 
 #endif
 
-    // ZHIWU: 设置pid文件
+    // 设置pid文件
     if (ngx_create_pidfile(&ccf->pid, cycle->log) != NGX_OK) {
         return 1;
     }
 
-    // ZHIWU: 重定向异常
+    // 重定向异常
     if (ngx_log_redirect_stderr(cycle) != NGX_OK) {
         return 1;
     }
@@ -373,10 +373,10 @@ main(int argc, char *const *argv)
     ngx_use_stderr = 0;
 
     if (ngx_process == NGX_PROCESS_SINGLE) {
-        // ZHIWU: 单进程工作模式
+        // 单进程工作模式
         ngx_single_process_cycle(cycle);
     } else {
-        // ZHIWU: master-worker工作模式
+        // master-worker工作模式
         ngx_master_process_cycle(cycle);
     }
 
@@ -1077,12 +1077,15 @@ ngx_core_module_create_conf(ngx_cycle_t *cycle)
 }
 
 
+// ZHIWU: Nginx的启动配置，默认daemon模式启动，master-worker进程模式
 static char *
 ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf)
 {
     ngx_core_conf_t  *ccf = conf;
 
+    // 设置启动模式，默认为daemon模式
     ngx_conf_init_value(ccf->daemon, 1);
+    // 设置进程模式，默认为master-worker模式
     ngx_conf_init_value(ccf->master, 1);
     ngx_conf_init_msec_value(ccf->timer_resolution, 0);
     ngx_conf_init_msec_value(ccf->shutdown_timeout, 0);
