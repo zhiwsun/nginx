@@ -102,9 +102,7 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data, char *
         }
 
         if (s == NGX_MAX_PROCESSES) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, 0,
-                          "no more than %d processes can be spawned",
-                          NGX_MAX_PROCESSES);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "no more than %d processes can be spawned", NGX_MAX_PROCESSES);
             return NGX_INVALID_PID;
         }
     }
