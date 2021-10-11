@@ -154,6 +154,7 @@ ngx_conf_add_dump(ngx_conf_t *cf, ngx_str_t *filename)
 }
 
 
+// ZHIWU: Nginx配置文件解析
 char *
 ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
 {
@@ -168,10 +169,8 @@ ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
         parse_param
     } type;
 
-#if (NGX_SUPPRESS_WARN)
     fd = NGX_INVALID_FILE;
     prev = NULL;
-#endif
 
     if (filename) {
 

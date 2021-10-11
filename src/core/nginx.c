@@ -229,11 +229,11 @@ main(int argc, char *const *argv)
     ngx_regex_init();
 #endif
 
-    // ZHIWU: 当前进程和父进程
+    // 当前进程和父进程
     ngx_pid = ngx_getpid();
     ngx_parent = ngx_getppid();
 
-    // ZHIWU: 初始化日志设置
+    // 初始化日志设置
     log = ngx_log_init(ngx_prefix, ngx_error_log);
     if (log == NULL) {
         return 1;
@@ -246,7 +246,7 @@ main(int argc, char *const *argv)
     // init_cycle->log is required for signal handlers and ngx_process_options()
     ngx_memzero(&init_cycle, sizeof(ngx_cycle_t));
     init_cycle.log = log;
-    // init_cycle 是一个临时变量，初始化之后将其指针赋值给全局变量
+    // ngx_cycle 是全局变量
     ngx_cycle = &init_cycle;
 
     init_cycle.pool = ngx_create_pool(1024, log);
@@ -278,12 +278,12 @@ main(int argc, char *const *argv)
     // ngx_slab_sizes_init() requires ngx_pagesize set in ngx_os_init()
     ngx_slab_sizes_init();
 
-    // ZHIWU: 通过环境变量完成Socket的继承，将其保存在全局变量ngx_cycle的listening数组中
+    // 通过环境变量完成Socket的继承，将其保存在全局变量ngx_cycle的listening数组中
     if (ngx_add_inherited_sockets(&init_cycle) != NGX_OK) {
         return 1;
     }
 
-    // ZHIWU: 预初始化modules信息，module的信息是配置编译阶段通过auto/confgure命令生成，objs目录下
+    // 预初始化modules信息，module的信息是配置编译阶段通过auto/confgure命令生成，objs目录下
     if (ngx_preinit_modules() != NGX_OK) {
         return 1;
     }
@@ -297,6 +297,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+    // nginx -t
     if (ngx_test_config) {
         if (!ngx_quiet_mode) {
             ngx_log_stderr(0, "configuration file %s test is successful", cycle->conf_file.data);
@@ -314,17 +315,17 @@ main(int argc, char *const *argv)
                 ngx_write_stdout(NGX_LINEFEED);
             }
         }
-        // 这里直接退出了， nginx -t 命令
         return 0;
     }
 
-    // signal 信号处理
+    // terminal进程有传递信号进来，处理后直接退出了
     if (ngx_signal) {
         return ngx_signal_process(cycle, ngx_signal);
     }
 
     ngx_os_status(cycle->log);
 
+    // 初始化后的cycle赋值给全局变量
     ngx_cycle = cycle;
 
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);

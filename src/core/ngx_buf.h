@@ -17,7 +17,7 @@ typedef void *            ngx_buf_tag_t;
 
 typedef struct ngx_buf_s  ngx_buf_t;
 
-// ZHIWU: Nginx缓存定义
+
 struct ngx_buf_s {
     u_char          *pos;
     u_char          *last;

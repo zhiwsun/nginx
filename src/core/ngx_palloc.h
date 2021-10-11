@@ -54,7 +54,7 @@ typedef struct {
 } ngx_pool_data_t;
 
 
-// ZHIWU: Nginx内存管理
+// Nginx内存池
 struct ngx_pool_s {
     ngx_pool_data_t       d;
     size_t                max;

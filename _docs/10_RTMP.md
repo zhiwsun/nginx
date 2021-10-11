@@ -1,0 +1,24 @@
+
+
+## nginx_rtmp_modules
+
+ngx_rtmp_module;
+ngx_rtmp_core_module;
+ngx_rtmp_cmd_module;
+ngx_rtmp_codec_module;
+ngx_rtmp_access_module;
+ngx_rtmp_record_module;
+ngx_rtmp_live_module;
+ngx_rtmp_play_module;
+ngx_rtmp_flv_module;
+ngx_rtmp_mp4_module;
+ngx_rtmp_netcall_module;
+ngx_rtmp_relay_module;
+ngx_rtmp_exec_module;
+ngx_rtmp_auto_push_module;
+ngx_rtmp_auto_push_index_module;
+ngx_rtmp_notify_module;
+ngx_rtmp_log_module;
+ngx_rtmp_limit_module;
+ngx_rtmp_hls_module;
+ngx_rtmp_dash_module;

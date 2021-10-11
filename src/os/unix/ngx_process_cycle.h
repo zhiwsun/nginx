@@ -20,10 +20,15 @@
 #define NGX_CMD_REOPEN         5
 
 
+// Nginx为单进程工作模式
 #define NGX_PROCESS_SINGLE     0
+// 当前为master进程
 #define NGX_PROCESS_MASTER     1
+// 当前运行的nginx只是一个发送信号的进程，nginx -s stop|quit|reopen
 #define NGX_PROCESS_SIGNALLER  2
+// 当前为worker进程
 #define NGX_PROCESS_WORKER     3
+// 当前为辅助进程
 #define NGX_PROCESS_HELPER     4
 
 

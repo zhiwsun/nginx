@@ -26,9 +26,14 @@ static void ngx_cache_manager_process_handler(ngx_event_t *ev);
 static void ngx_cache_loader_process_handler(ngx_event_t *ev);
 
 
+// 当前进程是什么类型的进程
+// NGX_PROCESS_SINGLE | NGX_PROCESS_MASTER | NGX_PROCESS_WORKER 等等
 ngx_uint_t    ngx_process;
+// 当前worker进程是第几个worker子进程
 ngx_uint_t    ngx_worker;
+// 当前进程pid
 ngx_pid_t     ngx_pid;
+// 父进程pid
 ngx_pid_t     ngx_parent;
 
 sig_atomic_t  ngx_reap;
@@ -44,6 +49,7 @@ sig_atomic_t  ngx_reopen;
 sig_atomic_t  ngx_change_binary;
 ngx_pid_t     ngx_new_binary;
 ngx_uint_t    ngx_inherited;
+// 当前进程是否为daemon进程
 ngx_uint_t    ngx_daemonized;
 
 sig_atomic_t  ngx_noaccept;

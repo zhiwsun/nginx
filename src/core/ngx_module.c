@@ -14,14 +14,14 @@
 
 
 static ngx_uint_t ngx_module_index(ngx_cycle_t *cycle);
-static ngx_uint_t ngx_module_ctx_index(ngx_cycle_t *cycle, ngx_uint_t type,
-    ngx_uint_t index);
+static ngx_uint_t ngx_module_ctx_index(ngx_cycle_t *cycle, ngx_uint_t type, ngx_uint_t index);
 
 
 ngx_uint_t         ngx_max_module;
 static ngx_uint_t  ngx_modules_n;
 
 
+// 初始化modules信息，设置index和name
 ngx_int_t
 ngx_preinit_modules(void)
 {
@@ -47,14 +47,12 @@ ngx_cycle_modules(ngx_cycle_t *cycle)
      * copy static modules to it
      */
 
-    cycle->modules = ngx_pcalloc(cycle->pool, (ngx_max_module + 1)
-                                              * sizeof(ngx_module_t *));
+    cycle->modules = ngx_pcalloc(cycle->pool, (ngx_max_module + 1) * sizeof(ngx_module_t *));
     if (cycle->modules == NULL) {
         return NGX_ERROR;
     }
 
-    ngx_memcpy(cycle->modules, ngx_modules,
-               ngx_modules_n * sizeof(ngx_module_t *));
+    ngx_memcpy(cycle->modules, ngx_modules, ngx_modules_n * sizeof(ngx_module_t *));
 
     cycle->modules_n = ngx_modules_n;
 
@@ -154,8 +152,7 @@ ngx_count_modules(ngx_cycle_t *cycle, ngx_uint_t type)
 
 
 ngx_int_t
-ngx_add_module(ngx_conf_t *cf, ngx_str_t *file, ngx_module_t *module,
-    char **order)
+ngx_add_module(ngx_conf_t *cf, ngx_str_t *file, ngx_module_t *module, char **order)
 {
     void               *rv;
     ngx_uint_t          i, m, before;
@@ -219,13 +216,6 @@ ngx_add_module(ngx_conf_t *cf, ngx_str_t *file, ngx_module_t *module,
         }
 
         for ( /* void */ ; order[i]; i++) {
-
-#if 0
-            ngx_log_debug2(NGX_LOG_DEBUG_CORE, cf->log, 0,
-                           "module: %s before %s",
-                           module->name, order[i]);
-#endif
-
             for (m = 0; m < before; m++) {
                 if (ngx_strcmp(cf->cycle->modules[m]->name, order[i]) == 0) {
 

@@ -137,7 +137,9 @@ typedef struct {
 #define ngx_is_init_cycle(cycle)  (cycle->conf_ctx == NULL)
 
 
+// 初始化生命周期
 ngx_cycle_t *ngx_init_cycle(ngx_cycle_t *old_cycle);
+
 ngx_int_t ngx_create_pidfile(ngx_str_t *name, ngx_log_t *log);
 void ngx_delete_pidfile(ngx_cycle_t *cycle);
 ngx_int_t ngx_signal_process(ngx_cycle_t *cycle, char *sig);

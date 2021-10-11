@@ -34,7 +34,7 @@ static ngx_connection_t  dumb;
 /* STUB */
 
 
-// ZHIWU: 最核心的初始化ngx_cycle过程！
+// ZHIWU: 最核心的初始化ngx_cycle过程，此处包含新启动的逻辑，也包含热升级过程中的ngx_cycle_t初始化，所以逻辑复杂
 ngx_cycle_t *
 ngx_init_cycle(ngx_cycle_t *old_cycle)
 {
@@ -254,10 +254,6 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
     conf.log = log;
     conf.module_type = NGX_CORE_MODULE;
     conf.cmd_type = NGX_MAIN_CONF;
-
-#if 0
-    log->log_level = NGX_LOG_DEBUG_ALL;
-#endif
 
     if (ngx_conf_param(&conf) != NGX_CONF_OK) {
         environ = senv;

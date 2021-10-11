@@ -13,11 +13,17 @@
 #include <ngx_core.h>
 
 
+// 动态数组
 typedef struct {
+    // 动态数组首地址
     void        *elts;
+    // 动态数组中元素个数
     ngx_uint_t   nelts;
+    // 动态数组中每个元素对应内存大小
     size_t       size;
+    // 当前动态数组内容纳元素个数总大小
     ngx_uint_t   nalloc;
+    // 内存池
     ngx_pool_t  *pool;
 } ngx_array_t;
 
@@ -41,6 +47,7 @@ ngx_array_init(ngx_array_t *array, ngx_pool_t *pool, ngx_uint_t n, size_t size)
     array->nalloc = n;
     array->pool = pool;
 
+    // 在 pool 中分配内存
     array->elts = ngx_palloc(pool, n * size);
     if (array->elts == NULL) {
         return NGX_ERROR;

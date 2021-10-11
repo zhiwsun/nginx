@@ -3,7 +3,6 @@
 #include <ngx_core.h>
 
 
-
 extern ngx_module_t  ngx_core_module;
 extern ngx_module_t  ngx_errlog_module;
 extern ngx_module_t  ngx_conf_module;
@@ -79,6 +78,8 @@ extern ngx_module_t  ngx_http_copy_filter_module;
 extern ngx_module_t  ngx_http_range_body_filter_module;
 extern ngx_module_t  ngx_http_not_modified_filter_module;
 
+
+// ngx_modules 是一个全局变量，持有所有module对应的实例
 ngx_module_t *ngx_modules[] = {
     &ngx_core_module,
     &ngx_errlog_module,
@@ -157,6 +158,8 @@ ngx_module_t *ngx_modules[] = {
     NULL
 };
 
+
+// 这里就仅仅是各module的名称而已，通过autoconfig工具生成
 char *ngx_module_names[] = {
     "ngx_core_module",
     "ngx_errlog_module",
