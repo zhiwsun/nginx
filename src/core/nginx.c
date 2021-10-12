@@ -207,7 +207,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-    // ZHIWU: 解析命令行参数
+    // 解析命令行参数
     if (ngx_get_options(argc, argv) != NGX_OK) {
         return 1;
     }
@@ -220,14 +220,12 @@ main(int argc, char *const *argv)
         }
     }
 
-    /* TODO */ ngx_max_sockets = -1;
+    ngx_max_sockets = -1;
 
-    // ZHIWU: 设置和更新时间戳
+    // 设置和更新时间戳
     ngx_time_init();
 
-#if (NGX_PCRE)
     ngx_regex_init();
-#endif
 
     // 当前进程和父进程
     ngx_pid = ngx_getpid();
@@ -239,13 +237,12 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-#if (NGX_OPENSSL)
     ngx_ssl_init(log);
-#endif
 
     // init_cycle->log is required for signal handlers and ngx_process_options()
     ngx_memzero(&init_cycle, sizeof(ngx_cycle_t));
     init_cycle.log = log;
+
     // ngx_cycle 是全局变量
     ngx_cycle = &init_cycle;
 
@@ -254,7 +251,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-    // ZHIWU: 写入命令行参数到ngx_cycle
+    // 写入命令行参数到ngx_cycle
     if (ngx_save_argv(&init_cycle, argc, argv) != NGX_OK) {
         return 1;
     }
@@ -334,8 +331,6 @@ main(int argc, char *const *argv)
         ngx_process = NGX_PROCESS_MASTER;
     }
 
-#if !(NGX_WIN32)
-
     if (ngx_init_signals(cycle->log) != NGX_OK) {
         return 1;
     }
@@ -352,8 +347,6 @@ main(int argc, char *const *argv)
     if (ngx_inherited) {
         ngx_daemonized = 1;
     }
-
-#endif
 
     // 设置pid文件
     if (ngx_create_pidfile(&ccf->pid, cycle->log) != NGX_OK) {
@@ -373,6 +366,7 @@ main(int argc, char *const *argv)
 
     ngx_use_stderr = 0;
 
+    // 启动不同的process_cycle，这里为了读代码方便，移除了win32平台的实现
     if (ngx_process == NGX_PROCESS_SINGLE) {
         // 单进程工作模式
         ngx_single_process_cycle(cycle);

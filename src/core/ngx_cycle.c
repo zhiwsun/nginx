@@ -34,7 +34,7 @@ static ngx_connection_t  dumb;
 /* STUB */
 
 
-// ZHIWU: 最核心的初始化ngx_cycle过程，此处包含新启动的逻辑，也包含热升级过程中的ngx_cycle_t初始化，所以逻辑复杂
+// 最核心的初始化ngx_cycle过程，此处包含新启动的逻辑，也包含热升级过程中的ngx_cycle_t初始化，所以逻辑复杂
 ngx_cycle_t *
 ngx_init_cycle(ngx_cycle_t *old_cycle)
 {
@@ -212,13 +212,14 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
         return NULL;
     }
 
+    // 调用 CORE_MODULE 中的回调函数
     for (i = 0; cycle->modules[i]; i++) {
         if (cycle->modules[i]->type != NGX_CORE_MODULE) {
             continue;
         }
 
+        // 回调函数：cycle->modules[i]->ctx->create_conf
         module = cycle->modules[i]->ctx;
-
         if (module->create_conf) {
             rv = module->create_conf(cycle);
             if (rv == NULL) {
@@ -229,9 +230,7 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
         }
     }
 
-
     senv = environ;
-
 
     ngx_memzero(&conf, sizeof(ngx_conf_t));
     /* STUB: init array ? */
@@ -271,13 +270,15 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
         ngx_log_stderr(0, "the configuration file %s syntax is ok", cycle->conf_file.data);
     }
 
+
+    // 调用 CORE_MODULE 中的回调函数
     for (i = 0; cycle->modules[i]; i++) {
         if (cycle->modules[i]->type != NGX_CORE_MODULE) {
             continue;
         }
 
+        // 回调函数：cycle-modules[i]->ctx->init_conf
         module = cycle->modules[i]->ctx;
-
         if (module->init_conf) {
             if (module->init_conf(cycle, cycle->conf_ctx[cycle->modules[i]->index]) == NGX_CONF_ERROR)
             {
@@ -371,14 +372,12 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
             goto failed;
         }
 
-#if !(NGX_WIN32)
         if (fcntl(file[i].fd, F_SETFD, FD_CLOEXEC) == -1) {
             ngx_log_error(NGX_LOG_EMERG, log, ngx_errno,
                           "fcntl(FD_CLOEXEC) \"%s\" failed",
                           file[i].name.data);
             goto failed;
         }
-#endif
     }
 
     cycle->log = &cycle->new_log;
@@ -441,10 +440,6 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
                 && !shm_zone[i].noreuse)
             {
                 shm_zone[i].shm.addr = oshm_zone[n].shm.addr;
-#if (NGX_WIN32)
-                shm_zone[i].shm.handle = oshm_zone[n].shm.handle;
-#endif
-
                 if (shm_zone[i].init(&shm_zone[i], oshm_zone[n].data)
                     != NGX_OK)
                 {
@@ -499,9 +494,7 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
                     continue;
                 }
 
-                if (ngx_cmp_sockaddr(nls[n].sockaddr, nls[n].socklen,
-                                     ls[i].sockaddr, ls[i].socklen, 1)
-                    == NGX_OK)
+                if (ngx_cmp_sockaddr(nls[n].sockaddr, nls[n].socklen, ls[i].sockaddr, ls[i].socklen, 1) == NGX_OK)
                 {
                     nls[n].fd = ls[i].fd;
                     nls[n].inherited = ls[i].inherited;
@@ -512,47 +505,9 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
                         nls[n].listen = 1;
                     }
 
-#if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
-
-                    /*
-                     * FreeBSD, except the most recent versions,
-                     * could not remove accept filter
-                     */
-                    nls[n].deferred_accept = ls[i].deferred_accept;
-
-                    if (ls[i].accept_filter && nls[n].accept_filter) {
-                        if (ngx_strcmp(ls[i].accept_filter,
-                                       nls[n].accept_filter)
-                            != 0)
-                        {
-                            nls[n].delete_deferred = 1;
-                            nls[n].add_deferred = 1;
-                        }
-
-                    } else if (ls[i].accept_filter) {
-                        nls[n].delete_deferred = 1;
-
-                    } else if (nls[n].accept_filter) {
-                        nls[n].add_deferred = 1;
-                    }
-#endif
-
-#if (NGX_HAVE_DEFERRED_ACCEPT && defined TCP_DEFER_ACCEPT)
-
-                    if (ls[i].deferred_accept && !nls[n].deferred_accept) {
-                        nls[n].delete_deferred = 1;
-
-                    } else if (ls[i].deferred_accept != nls[n].deferred_accept)
-                    {
-                        nls[n].add_deferred = 1;
-                    }
-#endif
-
-#if (NGX_HAVE_REUSEPORT)
                     if (nls[n].reuseport && !ls[i].reuseport) {
                         nls[n].add_reuseport = 1;
                     }
-#endif
 
                     break;
                 }
@@ -560,16 +515,6 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
 
             if (nls[n].fd == (ngx_socket_t) -1) {
                 nls[n].open = 1;
-#if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
-                if (nls[n].accept_filter) {
-                    nls[n].add_deferred = 1;
-                }
-#endif
-#if (NGX_HAVE_DEFERRED_ACCEPT && defined TCP_DEFER_ACCEPT)
-                if (nls[n].deferred_accept) {
-                    nls[n].add_deferred = 1;
-                }
-#endif
             }
         }
 
@@ -577,16 +522,6 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
         ls = cycle->listening.elts;
         for (i = 0; i < cycle->listening.nelts; i++) {
             ls[i].open = 1;
-#if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
-            if (ls[i].accept_filter) {
-                ls[i].add_deferred = 1;
-            }
-#endif
-#if (NGX_HAVE_DEFERRED_ACCEPT && defined TCP_DEFER_ACCEPT)
-            if (ls[i].deferred_accept) {
-                ls[i].add_deferred = 1;
-            }
-#endif
         }
     }
 
@@ -692,8 +627,6 @@ old_shm_zone_done:
                           &ls[i].addr_text);
         }
 
-#if (NGX_HAVE_UNIX_DOMAIN)
-
         if (ls[i].sockaddr->sa_family == AF_UNIX) {
             u_char  *name;
 
@@ -708,7 +641,6 @@ old_shm_zone_done:
             }
         }
 
-#endif
     }
 
 
@@ -760,9 +692,7 @@ old_shm_zone_done:
 
         n = 10;
 
-        if (ngx_array_init(&ngx_old_cycles, ngx_temp_pool, n,
-                           sizeof(ngx_cycle_t *))
-            != NGX_OK)
+        if (ngx_array_init(&ngx_old_cycles, ngx_temp_pool, n, sizeof(ngx_cycle_t *)) != NGX_OK)
         {
             exit(1);
         }
@@ -794,8 +724,7 @@ old_shm_zone_done:
 failed:
 
     if (!ngx_is_init_cycle(old_cycle)) {
-        old_ccf = (ngx_core_conf_t *) ngx_get_conf(old_cycle->conf_ctx,
-                                                   ngx_core_module);
+        old_ccf = (ngx_core_conf_t *) ngx_get_conf(old_cycle->conf_ctx, ngx_core_module);
         if (old_ccf->environment) {
             environ = old_ccf->environment;
         }

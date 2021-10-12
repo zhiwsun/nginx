@@ -25,11 +25,9 @@ static ngx_int_t ngx_event_module_init(ngx_cycle_t *cycle);
 static ngx_int_t ngx_event_process_init(ngx_cycle_t *cycle);
 static char *ngx_events_block(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
-static char *ngx_event_connections(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+static char *ngx_event_connections(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_event_use(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
-static char *ngx_event_debug_connection(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+static char *ngx_event_debug_connection(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 static void *ngx_event_core_create_conf(ngx_cycle_t *cycle);
 static char *ngx_event_core_init_conf(ngx_cycle_t *cycle, void *conf);
@@ -57,27 +55,6 @@ ngx_msec_t            ngx_accept_mutex_delay;
 ngx_int_t             ngx_accept_disabled;
 
 
-#if (NGX_STAT_STUB)
-
-static ngx_atomic_t   ngx_stat_accepted0;
-ngx_atomic_t         *ngx_stat_accepted = &ngx_stat_accepted0;
-static ngx_atomic_t   ngx_stat_handled0;
-ngx_atomic_t         *ngx_stat_handled = &ngx_stat_handled0;
-static ngx_atomic_t   ngx_stat_requests0;
-ngx_atomic_t         *ngx_stat_requests = &ngx_stat_requests0;
-static ngx_atomic_t   ngx_stat_active0;
-ngx_atomic_t         *ngx_stat_active = &ngx_stat_active0;
-static ngx_atomic_t   ngx_stat_reading0;
-ngx_atomic_t         *ngx_stat_reading = &ngx_stat_reading0;
-static ngx_atomic_t   ngx_stat_writing0;
-ngx_atomic_t         *ngx_stat_writing = &ngx_stat_writing0;
-static ngx_atomic_t   ngx_stat_waiting0;
-ngx_atomic_t         *ngx_stat_waiting = &ngx_stat_waiting0;
-
-#endif
-
-
-
 static ngx_command_t  ngx_events_commands[] = {
 
     { ngx_string("events"),
@@ -91,10 +68,11 @@ static ngx_command_t  ngx_events_commands[] = {
 };
 
 
+// CORE_MODULE 的扩展信息，放置于 ngx_module_t -> ctx 字段
 static ngx_core_module_t  ngx_events_module_ctx = {
     ngx_string("events"),
-    NULL,
-    ngx_event_init_conf
+    NULL,                   /* create_conf */
+    ngx_event_init_conf     /* init_conf */
 };
 
 
@@ -178,6 +156,7 @@ ngx_module_t  ngx_event_core_module = {
     NGX_MODULE_V1,
     &ngx_event_core_module_ctx,            /* module context */
     ngx_event_core_commands,               /* module directives */
+    //
     NGX_EVENT_MODULE,                      /* module type */
     NULL,                                  /* init master */
     ngx_event_module_init,                 /* init module */
@@ -190,7 +169,7 @@ ngx_module_t  ngx_event_core_module = {
 };
 
 
-// ZHIWU: 处理事件的入口
+// 处理事件的入口
 void
 ngx_process_events_and_timers(ngx_cycle_t *cycle)
 {

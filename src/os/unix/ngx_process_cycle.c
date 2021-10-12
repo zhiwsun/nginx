@@ -74,7 +74,7 @@ static ngx_log_t        ngx_exit_log;
 static ngx_open_file_t  ngx_exit_log_file;
 
 
-// ZHIWU: master-worker工作模式
+// master-worker工作模式
 void
 ngx_master_process_cycle(ngx_cycle_t *cycle)
 {
@@ -171,6 +171,9 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
         ngx_time_update();
 
         ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "wake up, sigio %i", sigio);
+
+
+        // 以下是master进程在循环执行过程中对不同状态执行的不同动作，注意都是if判定
 
         if (ngx_reap) {
             ngx_reap = 0;
@@ -270,7 +273,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
 }
 
 
-// ZHIWU: 单进程工作模式
+// 单进程工作模式
 void
 ngx_single_process_cycle(ngx_cycle_t *cycle)
 {
@@ -281,7 +284,7 @@ ngx_single_process_cycle(ngx_cycle_t *cycle)
         exit(2);
     }
 
-    // ZHIWU: 调用所有module的回调函数 init_process
+    // 回调函数：init_process
     for (i = 0; cycle->modules[i]; i++) {
         if (cycle->modules[i]->init_process) {
             if (cycle->modules[i]->init_process(cycle) == NGX_ERROR) {
@@ -291,20 +294,22 @@ ngx_single_process_cycle(ngx_cycle_t *cycle)
         }
     }
 
-    // ZHIWU: 循环执行
+    // 循环执行
     for ( ;; ) {
         ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "worker cycle");
 
+        // ngx_event.c 事件处理
         ngx_process_events_and_timers(cycle);
 
+        // terminate || quit
         if (ngx_terminate || ngx_quit) {
 
+            // 回调函数：exit_process
             for (i = 0; cycle->modules[i]; i++) {
                 if (cycle->modules[i]->exit_process) {
                     cycle->modules[i]->exit_process(cycle);
                 }
             }
-
             ngx_master_process_exit(cycle);
         }
 
@@ -330,7 +335,7 @@ ngx_single_process_cycle(ngx_cycle_t *cycle)
 }
 
 
-// ZHIWU: 启动worker工作进程
+// 启动worker工作进程
 static void
 ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)
 {
@@ -339,9 +344,7 @@ ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)
     ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "start worker processes");
 
     for (i = 0; i < n; i++) {
-
         ngx_spawn_process(cycle, ngx_worker_process_cycle, (void *) (intptr_t) i, "worker process", type);
-
         ngx_pass_open_channel(cycle);
     }
 }
@@ -437,12 +440,6 @@ ngx_signal_worker_processes(ngx_cycle_t *cycle, int signo)
 
     ngx_memzero(&ch, sizeof(ngx_channel_t));
 
-#if (NGX_BROKEN_SCM_RIGHTS)
-
-    ch.command = 0;
-
-#else
-
     switch (signo) {
 
     case ngx_signal_value(NGX_SHUTDOWN_SIGNAL):
@@ -461,10 +458,7 @@ ngx_signal_worker_processes(ngx_cycle_t *cycle, int signo)
         ch.command = 0;
     }
 
-#endif
-
     ch.fd = -1;
-
 
     for (i = 0; i < ngx_last_process; i++) {
 
@@ -695,7 +689,7 @@ ngx_master_process_exit(ngx_cycle_t *cycle)
 }
 
 
-// ZHIWU: worker进程的主循环
+// worker进程的主循环
 static void
 ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 {
@@ -750,6 +744,7 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 }
 
 
+// worker进程初始化
 static void
 ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
 {
@@ -812,17 +807,6 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
                           ccf->username, ccf->group);
         }
 
-#if (NGX_HAVE_PR_SET_KEEPCAPS && NGX_HAVE_CAPABILITIES)
-        if (ccf->transparent && ccf->user) {
-            if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) {
-                ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno,
-                              "prctl(PR_SET_KEEPCAPS, 1) failed");
-                /* fatal */
-                exit(2);
-            }
-        }
-#endif
-
         if (setuid(ccf->user) == -1) {
             ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno,
                           "setuid(%d) failed", ccf->user);
@@ -830,26 +814,6 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
             exit(2);
         }
 
-#if (NGX_HAVE_CAPABILITIES)
-        if (ccf->transparent && ccf->user) {
-            struct __user_cap_data_struct    data;
-            struct __user_cap_header_struct  header;
-
-            ngx_memzero(&header, sizeof(struct __user_cap_header_struct));
-            ngx_memzero(&data, sizeof(struct __user_cap_data_struct));
-
-            header.version = _LINUX_CAPABILITY_VERSION_1;
-            data.effective = CAP_TO_MASK(CAP_NET_RAW);
-            data.permitted = data.effective;
-
-            if (syscall(SYS_capset, &header, &data) == -1) {
-                ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno,
-                              "capset() failed");
-                /* fatal */
-                exit(2);
-            }
-        }
-#endif
     }
 
     if (worker >= 0) {
@@ -860,16 +824,6 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
         }
     }
 
-#if (NGX_HAVE_PR_SET_DUMPABLE)
-
-    /* allow coredump after setuid() in Linux 2.4.x */
-
-    if (prctl(PR_SET_DUMPABLE, 1, 0, 0, 0) == -1) {
-        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                      "prctl(PR_SET_DUMPABLE) failed");
-    }
-
-#endif
 
     if (ccf->working_directory.len) {
         if (chdir((char *) ccf->working_directory.data) == -1) {
@@ -899,6 +853,7 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
         ls[i].previous = NULL;
     }
 
+    // 回调函数：init_process
     for (i = 0; cycle->modules[i]; i++) {
         if (cycle->modules[i]->init_process) {
             if (cycle->modules[i]->init_process(cycle) == NGX_ERROR) {
@@ -933,13 +888,7 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
                       "close() channel failed");
     }
 
-#if 0
-    ngx_last_process = 0;
-#endif
-
-    if (ngx_add_channel_event(cycle, ngx_channel, NGX_READ_EVENT,
-                              ngx_channel_handler)
-        == NGX_ERROR)
+    if (ngx_add_channel_event(cycle, ngx_channel, NGX_READ_EVENT, ngx_channel_handler) == NGX_ERROR)
     {
         /* fatal */
         exit(2);
@@ -953,6 +902,7 @@ ngx_worker_process_exit(ngx_cycle_t *cycle)
     ngx_uint_t         i;
     ngx_connection_t  *c;
 
+    // 回调函数：exit_process
     for (i = 0; cycle->modules[i]; i++) {
         if (cycle->modules[i]->exit_process) {
             cycle->modules[i]->exit_process(cycle);

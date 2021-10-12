@@ -36,7 +36,7 @@ struct ngx_shm_zone_s {
 };
 
 
-// ZHIWU: Nginx生命周期定义
+// Nginx生命周期定义
 struct ngx_cycle_s {
 
     // 保持所有模块的配置信息

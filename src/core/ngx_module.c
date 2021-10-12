@@ -39,14 +39,11 @@ ngx_preinit_modules(void)
 }
 
 
+// 为各个module分配内存
 ngx_int_t
 ngx_cycle_modules(ngx_cycle_t *cycle)
 {
-    /*
-     * create a list of modules to be used for this cycle,
-     * copy static modules to it
-     */
-
+    // create a list of modules to be used for this cycle, copy static modules to it
     cycle->modules = ngx_pcalloc(cycle->pool, (ngx_max_module + 1) * sizeof(ngx_module_t *));
     if (cycle->modules == NULL) {
         return NGX_ERROR;
@@ -60,6 +57,7 @@ ngx_cycle_modules(ngx_cycle_t *cycle)
 }
 
 
+// 依次调用module定义中的函数指针，初始化各个module
 ngx_int_t
 ngx_init_modules(ngx_cycle_t *cycle)
 {
@@ -77,6 +75,7 @@ ngx_init_modules(ngx_cycle_t *cycle)
 }
 
 
+// 重新设定module的索引
 ngx_int_t
 ngx_count_modules(ngx_cycle_t *cycle, ngx_uint_t type)
 {

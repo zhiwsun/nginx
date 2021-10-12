@@ -34,7 +34,7 @@ ngx_int_t        ngx_process_slot;
 ngx_socket_t     ngx_channel;
 ngx_int_t        ngx_last_process;
 
-// ZHIWU: Nginx所有子进程数组，每个子进程都有一个ngx_process_t描述
+// Nginx所有子进程数组，每个子进程都有一个ngx_process_t描述
 ngx_process_t    ngx_processes[NGX_MAX_PROCESSES];
 
 
