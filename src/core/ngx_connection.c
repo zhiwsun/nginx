@@ -17,8 +17,7 @@ static void ngx_drain_connections(ngx_cycle_t *cycle);
 
 
 ngx_listening_t *
-ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr,
-    socklen_t socklen)
+ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr, socklen_t socklen)
 {
     size_t            len;
     ngx_listening_t  *ls;
@@ -46,17 +45,13 @@ ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr,
     ls->addr_text.len = len;
 
     switch (ls->sockaddr->sa_family) {
-#if (NGX_HAVE_INET6)
     case AF_INET6:
         ls->addr_text_max_len = NGX_INET6_ADDRSTRLEN;
         break;
-#endif
-#if (NGX_HAVE_UNIX_DOMAIN)
     case AF_UNIX:
         ls->addr_text_max_len = NGX_UNIX_ADDRSTRLEN;
         len++;
         break;
-#endif
     case AF_INET:
         ls->addr_text_max_len = NGX_INET_ADDRSTRLEN;
         break;
@@ -72,9 +67,7 @@ ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr,
 
     ngx_memcpy(ls->addr_text.data, text, len);
 
-#if !(NGX_WIN32)
     ngx_rbtree_init(&ls->rbtree, &ls->sentinel, ngx_udp_rbtree_insert_value);
-#endif
 
     ls->fd = (ngx_socket_t) -1;
     ls->type = SOCK_STREAM;
@@ -82,14 +75,7 @@ ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr,
     ls->backlog = NGX_LISTEN_BACKLOG;
     ls->rcvbuf = -1;
     ls->sndbuf = -1;
-
-#if (NGX_HAVE_SETFIB)
-    ls->setfib = -1;
-#endif
-
-#if (NGX_HAVE_TCP_FASTOPEN)
     ls->fastopen = -1;
-#endif
 
     return ls;
 }

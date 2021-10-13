@@ -7,6 +7,9 @@
 **/.DS_Store
 **/desktop.ini
 
+## Modules
+modules/
+
 ## IDE
 .vscode/
 .idea/
