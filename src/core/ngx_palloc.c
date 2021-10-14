@@ -14,7 +14,7 @@ static void *ngx_palloc_block(ngx_pool_t *pool, size_t size);
 static void *ngx_palloc_large(ngx_pool_t *pool, size_t size);
 
 
-// ZHIWU: 创建内存池，size为每个内存块大小
+// 创建内存池，size为每个内存块大小
 ngx_pool_t *
 ngx_create_pool(size_t size, ngx_log_t *log)
 {
@@ -118,7 +118,7 @@ ngx_reset_pool(ngx_pool_t *pool)
 }
 
 
-// ZHIWU: 分配内存
+// 分配内存
 void *
 ngx_palloc(ngx_pool_t *pool, size_t size)
 {
@@ -174,7 +174,7 @@ ngx_palloc_small(ngx_pool_t *pool, size_t size, ngx_uint_t align)
 }
 
 
-// ZHIWU: 分配块内存
+// 分配块内存
 static void *
 ngx_palloc_block(ngx_pool_t *pool, size_t size)
 {

@@ -9,7 +9,7 @@
 #include <ngx_core.h>
 
 
-// ZHIWU: Nginx以daemon模式启动，派生master进程
+// Nginx以daemon模式启动，派生master进程
 ngx_int_t
 ngx_daemon(ngx_log_t *log)
 {

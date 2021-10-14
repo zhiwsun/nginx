@@ -154,7 +154,7 @@ ngx_conf_add_dump(ngx_conf_t *cf, ngx_str_t *filename)
 }
 
 
-// ZHIWU: Nginx配置文件解析
+// Nginx配置文件解析
 char *
 ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
 {

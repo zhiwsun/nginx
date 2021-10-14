@@ -15,7 +15,7 @@
 static void ngx_shmtx_wakeup(ngx_shmtx_t *mtx);
 
 
-// ZHIWU: mtx是进程创建的，存储锁的变量；addr是共享内存中用于标识锁的变量
+// mtx是进程创建的，存储锁的变量；addr是共享内存中用于标识锁的变量
 ngx_int_t
 ngx_shmtx_create(ngx_shmtx_t *mtx, ngx_shmtx_sh_t *addr, u_char *name)
 {

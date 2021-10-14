@@ -46,7 +46,7 @@ typedef struct {
 
 #define NGX_MAX_PROCESSES         1024
 
-// ZHIWU: start_work_process 启动子进程类型
+// start_work_process 启动子进程类型
 // 子进程退出时，父进程不会再次重启
 #define NGX_PROCESS_NORESPAWN     -1
 // 子进程为刚创建的进程，用于与老的子进程进行区分

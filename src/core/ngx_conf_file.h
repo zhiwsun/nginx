@@ -20,7 +20,7 @@
  */
 
 
-// ZHIWU: 参数个数限制
+// 参数个数限制
 #define NGX_CONF_NOARGS      0x00000001
 #define NGX_CONF_TAKE1       0x00000002
 #define NGX_CONF_TAKE2       0x00000004
@@ -48,7 +48,7 @@
 #define NGX_DIRECT_CONF      0x00010000
 
 
-// ZHIWU: Nginx主配置，配置文件的一级位置
+// Nginx主配置，配置文件的一级位置
 #define NGX_MAIN_CONF        0x01000000
 #define NGX_ANY_CONF         0xFF000000
 
@@ -74,7 +74,7 @@
 #define NGX_MAX_CONF_ERRSTR  1024
 
 
-// ZHIWU: Nginx命令定义
+// Nginx命令定义
 struct ngx_command_s {
     // 配置指令名称，如：proxy_pass
     ngx_str_t             name;
@@ -114,10 +114,11 @@ typedef struct {
 } ngx_conf_dump_t;
 
 
+// 函数指针
 typedef char *(*ngx_conf_handler_pt)(ngx_conf_t *cf, ngx_command_t *dummy, void *conf);
 
 
-// ZHIWU: Nginx配置定义
+// Nginx配置定义
 struct ngx_conf_s {
     char                 *name;
     ngx_array_t          *args;

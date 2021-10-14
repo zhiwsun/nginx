@@ -36,7 +36,7 @@ typedef struct {
     ngx_uint_t     spin;
 } ngx_shmtx_t;
 
-// ZHIWU: Nginx中的共享内存互斥锁
+// Nginx中的共享内存互斥锁
 
 ngx_int_t ngx_shmtx_create(ngx_shmtx_t *mtx, ngx_shmtx_sh_t *addr, u_char *name);
 void ngx_shmtx_destroy(ngx_shmtx_t *mtx);

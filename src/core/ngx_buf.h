@@ -57,7 +57,6 @@ struct ngx_buf_s {
 };
 
 
-// ZHIWU: Nginx缓存链定义
 struct ngx_chain_s {
     ngx_buf_t    *buf;
     ngx_chain_t  *next;

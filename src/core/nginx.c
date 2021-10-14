@@ -190,7 +190,7 @@ static char        *ngx_signal;
 static char **ngx_os_environ;
 
 
-// ZHIWU: nginx_main
+// nginx_main
 int ngx_cdecl
 main(int argc, char *const *argv)
 {
@@ -1072,7 +1072,7 @@ ngx_core_module_create_conf(ngx_cycle_t *cycle)
 }
 
 
-// ZHIWU: Nginx的启动配置，默认daemon模式启动，master-worker进程模式
+// Nginx的启动配置，默认daemon模式启动，master-worker进程模式
 static char *
 ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf)
 {
