@@ -28,10 +28,12 @@ typedef struct {
 
 
 struct ngx_event_s {
+
+    // 无类型指针，事件上下文数据
     void            *data;
-
+    // 可写标志位
     unsigned         write:1;
-
+    // 
     unsigned         accept:1;
 
     /* used to detect the stale events in kqueue and epoll */
@@ -41,19 +43,24 @@ struct ngx_event_s {
      * the event was passed or would be passed to a kernel;
      * in aio mode - operation was posted.
      */
+    // 活跃标志位
     unsigned         active:1;
 
     unsigned         disabled:1;
 
     /* the ready event; in aio mode 0 means that no operation can be posted */
+    // 在AIO模式下，是否有请求事件处理
     unsigned         ready:1;
 
     unsigned         oneshot:1;
 
     /* aio operation is complete */
+    // 在AIO模式下，请求事件是否处理完成
     unsigned         complete:1;
 
+    // 为1表示字节流已经结束
     unsigned         eof:1;
+    // 处理事件出错
     unsigned         error:1;
 
     unsigned         timedout:1;
@@ -100,41 +107,18 @@ struct ngx_event_s {
 
     int              available;
 
+    // 事件被触发时的回调函数
     ngx_event_handler_pt  handler;
-
-
-#if (NGX_HAVE_IOCP)
-    ngx_event_ovlp_t ovlp;
-#endif
 
     ngx_uint_t       index;
 
     ngx_log_t       *log;
 
+    // 红黑树节点，用于实现计时器
     ngx_rbtree_node_t   timer;
-
-    /* the posted queue */
+    // 延迟队列，如果事件不在轮询循环中直接处理而是之后被处理，就放在这个队列中
     ngx_queue_t      queue;
 
-#if 0
-
-    /* the threads support */
-
-    /*
-     * the event thread context, we store it here
-     * if $(CC) does not understand __thread declaration
-     * and pthread_getspecific() is too costly
-     */
-
-    void            *thr_ctx;
-
-#if (NGX_EVENT_T_PADDING)
-
-    /* event should not cross cache line in SMP */
-
-    uint32_t         padding[NGX_EVENT_T_PADDING];
-#endif
-#endif
 };
 
 
