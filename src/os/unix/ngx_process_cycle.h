@@ -24,7 +24,7 @@
 #define NGX_PROCESS_SINGLE     0
 // 当前为master进程
 #define NGX_PROCESS_MASTER     1
-// 当前运行的nginx只是一个发送信号的进程，nginx -s stop|quit|reopen
+// 当前运行的nginx只是一个发送信号的进程，nginx -s stop | quit | reopen
 #define NGX_PROCESS_SIGNALLER  2
 // 当前为worker进程
 #define NGX_PROCESS_WORKER     3

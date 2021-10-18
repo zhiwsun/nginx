@@ -7,8 +7,9 @@
 **/.DS_Store
 **/desktop.ini
 
-## ThirdParty
+## Build
 third_party/
+objs/
 
 ## Modules
 modules/

@@ -294,7 +294,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-    // nginx -t
+    // Nginx信号：nginx -t
     if (ngx_test_config) {
         if (!ngx_quiet_mode) {
             ngx_log_stderr(0, "configuration file %s test is successful", cycle->conf_file.data);

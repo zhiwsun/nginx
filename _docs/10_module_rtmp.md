@@ -9,6 +9,7 @@
 ## 模块处理事件主流程
 ngx_event_accept
 listening->handler = ngx_rtmp_init_connection
+
 主要调用栈：
 ```c++
 ngx_rtmp_init_connection(ngx_connection_t *c)
