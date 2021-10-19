@@ -21,7 +21,7 @@ typedef struct {
 } ngx_http_conf_ctx_t;
 
 
-// 一组回调函数指针
+// RTMP配置相关的一组回调函数指针
 typedef struct {
     // 在创建和读取该模块的配置信息之前被调用
     ngx_int_t   (*preconfiguration)(ngx_conf_t *cf);
