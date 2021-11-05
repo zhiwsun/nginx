@@ -21,8 +21,7 @@ ngx_alloc(size_t size, ngx_log_t *log)
 
     p = malloc(size);
     if (p == NULL) {
-        ngx_log_error(NGX_LOG_EMERG, log, ngx_errno,
-                      "malloc(%uz) failed", size);
+        ngx_log_error(NGX_LOG_EMERG, log, ngx_errno, "malloc(%uz) failed", size);
     }
 
     ngx_log_debug2(NGX_LOG_DEBUG_ALLOC, log, 0, "malloc: %p:%uz", p, size);
@@ -48,6 +47,8 @@ ngx_calloc(size_t size, ngx_log_t *log)
 
 #if (NGX_HAVE_POSIX_MEMALIGN)
 
+
+// 系统调用，申请一片大小为 size 的内存，要求内存按照 alignment 大小进行对齐， alignement 参数须要为2的幂次方，须要是 void* 指针大小的倍数
 void *
 ngx_memalign(size_t alignment, size_t size, ngx_log_t *log)
 {
@@ -57,13 +58,11 @@ ngx_memalign(size_t alignment, size_t size, ngx_log_t *log)
     err = posix_memalign(&p, alignment, size);
 
     if (err) {
-        ngx_log_error(NGX_LOG_EMERG, log, err,
-                      "posix_memalign(%uz, %uz) failed", alignment, size);
+        ngx_log_error(NGX_LOG_EMERG, log, err, "posix_memalign(%uz, %uz) failed", alignment, size);
         p = NULL;
     }
 
-    ngx_log_debug3(NGX_LOG_DEBUG_ALLOC, log, 0,
-                   "posix_memalign: %p:%uz @%uz", p, size, alignment);
+    ngx_log_debug3(NGX_LOG_DEBUG_ALLOC, log, 0, "posix_memalign: %p:%uz @%uz", p, size, alignment);
 
     return p;
 }

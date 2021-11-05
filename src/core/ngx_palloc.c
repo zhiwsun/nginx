@@ -9,8 +9,10 @@
 #include <ngx_core.h>
 
 
+// 分配小的数据块，直接在 ngx_pool_t 中分配
 static ngx_inline void *ngx_palloc_small(ngx_pool_t *pool, size_t size, ngx_uint_t align);
 static void *ngx_palloc_block(ngx_pool_t *pool, size_t size);
+// 通过系统调用直接在系统内存中分配一个大的数据块，并通过 ngx_pool_large_t 链表维护
 static void *ngx_palloc_large(ngx_pool_t *pool, size_t size);
 
 
@@ -145,6 +147,7 @@ ngx_pnalloc(ngx_pool_t *pool, size_t size)
 }
 
 
+// 分配小的数据块，即 size <= pool->max
 static ngx_inline void *
 ngx_palloc_small(ngx_pool_t *pool, size_t size, ngx_uint_t align)
 {
@@ -154,27 +157,30 @@ ngx_palloc_small(ngx_pool_t *pool, size_t size, ngx_uint_t align)
     p = pool->current;
 
     do {
+        // 当前内存池中的首
         m = p->d.last;
 
         if (align) {
             m = ngx_align_ptr(m, NGX_ALIGNMENT);
         }
 
+        // 当前位置够分配，在 p->d.end 范围内，直接返回对齐后的分配位置起始点
         if ((size_t) (p->d.end - m) >= size) {
             p->d.last = m + size;
-
             return m;
         }
 
+        // 继续在下一个数据块中尝试分配
         p = p->d.next;
 
     } while (p);
 
+    // 现有的数据块都不能分配
     return ngx_palloc_block(pool, size);
 }
 
 
-// 分配块内存
+// 通过底层系统调用，分配内存数据块
 static void *
 ngx_palloc_block(ngx_pool_t *pool, size_t size)
 {
@@ -211,6 +217,7 @@ ngx_palloc_block(ngx_pool_t *pool, size_t size)
 }
 
 
+// 通过系统调用直接分配一个大的数据块，其地址维护在 ngx_pool_large_t 链表中
 static void *
 ngx_palloc_large(ngx_pool_t *pool, size_t size)
 {
@@ -218,6 +225,7 @@ ngx_palloc_large(ngx_pool_t *pool, size_t size)
     ngx_uint_t         n;
     ngx_pool_large_t  *large;
 
+    // 直接系统调用分配内存
     p = ngx_alloc(size, pool->log);
     if (p == NULL) {
         return NULL;
@@ -225,6 +233,7 @@ ngx_palloc_large(ngx_pool_t *pool, size_t size)
 
     n = 0;
 
+    // 查找当前 large 列表中是否有已经释放的节点，如果没有就新建一个 ngx_pool_large_t 节点
     for (large = pool->large; large; large = large->next) {
         if (large->alloc == NULL) {
             large->alloc = p;
@@ -275,6 +284,7 @@ ngx_pmemalign(ngx_pool_t *pool, size_t size, size_t alignment)
 }
 
 
+// 回收释放 p 指针指向的大数据块内存
 ngx_int_t
 ngx_pfree(ngx_pool_t *pool, void *p)
 {
@@ -282,8 +292,7 @@ ngx_pfree(ngx_pool_t *pool, void *p)
 
     for (l = pool->large; l; l = l->next) {
         if (p == l->alloc) {
-            ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, pool->log, 0,
-                           "free: %p", l->alloc);
+            ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, pool->log, 0, "free: %p", l->alloc);
             ngx_free(l->alloc);
             l->alloc = NULL;
 
@@ -295,6 +304,7 @@ ngx_pfree(ngx_pool_t *pool, void *p)
 }
 
 
+// 分配一块大小为 size 的内存并全部设置为 0
 void *
 ngx_pcalloc(ngx_pool_t *pool, size_t size)
 {
@@ -383,21 +393,18 @@ ngx_pool_delete_file(void *data)
 
     ngx_err_t  err;
 
-    ngx_log_debug2(NGX_LOG_DEBUG_ALLOC, c->log, 0, "file cleanup: fd:%d %s",
-                   c->fd, c->name);
+    ngx_log_debug2(NGX_LOG_DEBUG_ALLOC, c->log, 0, "file cleanup: fd:%d %s", c->fd, c->name);
 
     if (ngx_delete_file(c->name) == NGX_FILE_ERROR) {
         err = ngx_errno;
 
         if (err != NGX_ENOENT) {
-            ngx_log_error(NGX_LOG_CRIT, c->log, err,
-                          ngx_delete_file_n " \"%s\" failed", c->name);
+            ngx_log_error(NGX_LOG_CRIT, c->log, err, ngx_delete_file_n " \"%s\" failed", c->name);
         }
     }
 
     if (ngx_close_file(c->fd) == NGX_FILE_ERROR) {
-        ngx_log_error(NGX_LOG_ALERT, c->log, ngx_errno,
-                      ngx_close_file_n " \"%s\" failed", c->name);
+        ngx_log_error(NGX_LOG_ALERT, c->log, ngx_errno, ngx_close_file_n " \"%s\" failed", c->name);
     }
 }
 
