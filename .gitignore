@@ -19,6 +19,7 @@ modules/
 .idea/
 cmake-build-debug/
 cmake-build-release/
+xxx/
 
 ## C/C++
 build/

@@ -1,4 +1,9 @@
-#define NGX_CONFIGURE " --add-module=./modules/nginx-rtmp-module --with-openssl=/usr/local/Cellar/openssl@1.1/1.1.1l"
+#define NGX_CONFIGURE " --prefix=/tmp/desert/nginx --with-debug --with-pcre --with-http_ssl_module --with-openssl=/usr/local/opt/openssl --add-module=./modules/nginx-rtmp-module"
+
+#ifndef NGX_DEBUG
+#define NGX_DEBUG  1
+#endif
+
 
 #ifndef NGX_COMPILER
 #define NGX_COMPILER  "clang 13.0.0 (clang-1300.0.29.3)"
@@ -288,6 +293,11 @@
 #endif
 
 
+#ifndef NGX_HTTP_SSL
+#define NGX_HTTP_SSL  1
+#endif
+
+
 #ifndef NGX_HTTP_X_FORWARDED_FOR
 #define NGX_HTTP_X_FORWARDED_FOR  1
 #endif
@@ -324,7 +334,7 @@
 
 
 #ifndef NGX_PREFIX
-#define NGX_PREFIX  "/usr/local/nginx/"
+#define NGX_PREFIX  "/tmp/desert/nginx/"
 #endif
 
 

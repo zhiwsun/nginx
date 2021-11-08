@@ -3,6 +3,7 @@
 #include <ngx_core.h>
 
 
+
 extern ngx_module_t  ngx_core_module;
 extern ngx_module_t  ngx_errlog_module;
 extern ngx_module_t  ngx_conf_module;
@@ -49,6 +50,7 @@ extern ngx_module_t  ngx_http_map_module;
 extern ngx_module_t  ngx_http_split_clients_module;
 extern ngx_module_t  ngx_http_referer_module;
 extern ngx_module_t  ngx_http_rewrite_module;
+extern ngx_module_t  ngx_http_ssl_module;
 extern ngx_module_t  ngx_http_proxy_module;
 extern ngx_module_t  ngx_http_fastcgi_module;
 extern ngx_module_t  ngx_http_uwsgi_module;
@@ -78,8 +80,6 @@ extern ngx_module_t  ngx_http_copy_filter_module;
 extern ngx_module_t  ngx_http_range_body_filter_module;
 extern ngx_module_t  ngx_http_not_modified_filter_module;
 
-
-// ngx_modules 是一个全局变量，持有所有module对应的实例
 ngx_module_t *ngx_modules[] = {
     &ngx_core_module,
     &ngx_errlog_module,
@@ -127,6 +127,7 @@ ngx_module_t *ngx_modules[] = {
     &ngx_http_split_clients_module,
     &ngx_http_referer_module,
     &ngx_http_rewrite_module,
+    &ngx_http_ssl_module,
     &ngx_http_proxy_module,
     &ngx_http_fastcgi_module,
     &ngx_http_uwsgi_module,
@@ -158,8 +159,6 @@ ngx_module_t *ngx_modules[] = {
     NULL
 };
 
-
-// 这里就仅仅是各module的名称而已，通过autoconfig工具生成
 char *ngx_module_names[] = {
     "ngx_core_module",
     "ngx_errlog_module",
@@ -207,6 +206,7 @@ char *ngx_module_names[] = {
     "ngx_http_split_clients_module",
     "ngx_http_referer_module",
     "ngx_http_rewrite_module",
+    "ngx_http_ssl_module",
     "ngx_http_proxy_module",
     "ngx_http_fastcgi_module",
     "ngx_http_uwsgi_module",
