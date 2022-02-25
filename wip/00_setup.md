@@ -17,7 +17,8 @@
 $ brew install pcre zlib openssl
 $
 $ cd [ngx_src_path]
-$ ./auto/configure --prefix=/tmp/nginx --with-http_ssl_module --with-pcre --with-debug --with-openssl=/usr/local/opt/openssl
+$ ./auto/configure --prefix=/tmp/desert/nginx --with-debug --with-pcre \
+                   --with-http_ssl_module --with-openssl=/usr/local/opt/openssl
 ```
 
 如果遇到 `openssl` 模块路径问题，可以尝试修改 `/auto/lib/openssl/conf` 文件中的配置。
@@ -36,5 +37,7 @@ $ ./auto/configure --prefix=/tmp/nginx --with-http_ssl_module --with-pcre --with
 
 ```bash
 # 在源码编译时指定扩展的模块目录
-$ ./auto/configure --add-module=./modules/nginx-rtmp-module/
+$ ./auto/configure --prefix=/tmp/desert/nginx --with-debug --with-pcre \
+                   --with-http_ssl_module --with-openssl=/usr/local/opt/openssl \
+                   --add-module=./modules/nginx-rtmp-module/
 ```

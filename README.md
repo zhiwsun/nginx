@@ -1,12 +1,11 @@
 # Nginx v1.21.0 #
 
-## Branches ##
+## Code Base ##
 
 - [nginx/nginx - release-1.21.0](https://github.com/nginx/nginx/releases/tag/release-1.21.0)
 - [arut/nginx-rtmp-module - v1.2.2](https://github.com/arut/nginx-rtmp-module/releases/tag/v1.2.2)
+- [openresty/lua-nginx-module - v0.10.20](https://github.com/openresty/lua-nginx-module/releases/tag/v0.10.20)
 
-## Notes ##
+## My Notes ##
 
-1. [Setup & Build](_docs/00_setup.md)
-2. [Main Process](_docs/01_nginx_main.md)
-3. [ngx_rtmp_module](./_doc/../_docs/10_module_rtmp.md)
+- [My Notes](./wip/)

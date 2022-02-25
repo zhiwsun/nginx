@@ -1,17 +1,10 @@
 # .gitignore
 
-## Git
-**/.gitmodules
-
 ## OS
 **/.DS_Store
 **/desktop.ini
 
-## Build
-third_party/
-objs/
-
-## Modules
+## Git
 modules/
 
 ## IDE
@@ -21,31 +14,25 @@ cmake-build-debug/
 cmake-build-release/
 xxx/
 
-## C/C++
-build/
-### prerequisites
+## Build
+Makefile
+objs/
 *.d
-### compiled object files
 *.slo
 *.lo
 *.o
 *.obj
-### precompiled headers
 *.gch
 *.pch
-### compiled dynamic libraries
 *.so
 *.dylib
 *.dll
-### fortran module files
 *.mod
 *.smod
-### compiled static libraries
 *.lai
 *.la
 *.a
 *.lib
-### executables
 *.exe
 *.out
 *.app
