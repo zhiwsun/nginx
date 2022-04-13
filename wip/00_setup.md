@@ -1,4 +1,4 @@
-# 00. Setup #
+# Setup & Build Nginx Source Code #
 
 ## 1. Repository ##
 
@@ -33,11 +33,28 @@ $ ./auto/configure --prefix=/tmp/desert/nginx --with-debug --with-pcre \
  44             CORE_LIBS="$CORE_LIBS $NGX_LIBPTHREAD"
 ```
 
-安装扩展模块 `nginx-rtmp-module`
+### 2.1. nginx-rtmp-module ###
 
 ```bash
-# 在源码编译时指定扩展的模块目录
+# 编译扩展模块 nginx-rtmp-module 时只需要在编译命理中附带模块地址即可（同样注意 openssl 路径问题）
 $ ./auto/configure --prefix=/tmp/desert/nginx --with-debug --with-pcre \
                    --with-http_ssl_module --with-openssl=/usr/local/opt/openssl \
                    --add-module=./modules/nginx-rtmp-module/
+```
+
+### 2.2. nginx-lua-module ###
+
+`nginx-lua-module` 模块还额外依赖了 `luajit2` 和 `ngx_devel_kit`；其中 `luajit2` 工具需要前置编译安装完成，`ngx_devel_kit` 作为附加模块一并编译即可。
+编译过程中注意 `luajit2` 的头文件和库文件地址配置，配置文件位于 `nginx-lua-module/config` 中，现已手动额外配置。
+
+```bash
+# ./modules/nginx-lua-module/config
+LUAJIT_INC=/usr/local/include/luajit-2.1
+LUAJIT_LIB=/usr/local/lib
+```
+
+```bash
+$ ./auto/configure --prefix=/tmp/desert/nginx --with-debug --with-pcre \
+                   --with-http_ssl_module --with-openssl=/usr/local/opt/openssl \
+                   --add-module=./modules/nginx-devel-kit --add-module=./modules/nginx-lua-module
 ```
