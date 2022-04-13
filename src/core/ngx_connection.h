@@ -28,9 +28,13 @@ struct ngx_listening_s {
     int                 backlog;
     int                 rcvbuf;
     int                 sndbuf;
+#if (NGX_HAVE_KEEPALIVE_TUNABLE)
+    int                 keepidle;
+    int                 keepintvl;
+    int                 keepcnt;
+#endif
 
     /* handler of accepted connection */
-    // 函数指针
     ngx_connection_handler_pt   handler;
 
     void               *servers;  /* array of ngx_http_in_addr_t, for example */
@@ -63,7 +67,9 @@ struct ngx_listening_s {
     unsigned            addr_ntop:1;
     unsigned            wildcard:1;
 
+#if (NGX_HAVE_INET6)
     unsigned            ipv6only:1;
+#endif
     unsigned            reuseport:1;
     unsigned            add_reuseport:1;
     unsigned            keepalive:2;
@@ -71,8 +77,17 @@ struct ngx_listening_s {
     unsigned            deferred_accept:1;
     unsigned            delete_deferred:1;
     unsigned            add_deferred:1;
+#if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
+    char               *accept_filter;
+#endif
+#if (NGX_HAVE_SETFIB)
+    int                 setfib;
+#endif
 
+#if (NGX_HAVE_TCP_FASTOPEN)
     int                 fastopen;
+#endif
+
 };
 
 
@@ -132,7 +147,9 @@ struct ngx_connection_s {
 
     ngx_proxy_protocol_t  *proxy_protocol;
 
+#if (NGX_SSL || NGX_COMPAT)
     ngx_ssl_connection_t  *ssl;
+#endif
 
     ngx_udp_connection_t  *udp;
 
@@ -168,6 +185,13 @@ struct ngx_connection_s {
 
     unsigned            need_last_buf:1;
 
+#if (NGX_HAVE_AIO_SENDFILE || NGX_COMPAT)
+    unsigned            busy_count:2;
+#endif
+
+#if (NGX_THREADS || NGX_COMPAT)
+    ngx_thread_task_t  *sendfile_task;
+#endif
 };
 
 
